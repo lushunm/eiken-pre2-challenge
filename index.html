@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>えいけん準2級チャレンジ！</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="fx"></canvas>
+<div id="deco"></div>
+
+<main id="app">
+
+  <!-- ホーム画面 -->
+  <section id="scr-home" class="screen">
+    <h1 id="title">えいけん準2級チャレンジ！</h1>
+
+    <div class="card mascot-card">
+      <div id="mascot" class="mascot">🦊</div>
+      <div class="bubble" id="mascot-msg">きょうも がんばろう！</div>
+    </div>
+
+    <div class="card status-card">
+      <div class="lv-row">
+        <div class="lv-badge">Lv.<span id="lv">1</span></div>
+        <div class="xp-wrap">
+          <div class="xp-bar"><div id="xp-fill" class="xp-fill"></div></div>
+          <div class="xp-text" id="xp-text">0 / 150 XP</div>
+        </div>
+      </div>
+      <div class="stat-row">
+        <span>⭐ ほし <b id="stat-stars">0</b></span>
+        <span>🔥 れんぞく <b id="stat-streak">0</b>日</span>
+        <span>🏅 バッジ <b id="stat-badges">0</b>/12</span>
+      </div>
+      <div class="mission">
+        <div class="mission-label">🎯 きょうのミッション：30もんにチャレンジ！</div>
+        <div class="mission-bar"><div id="mission-fill"></div></div>
+        <div class="mission-text" id="mission-text">0 / 30</div>
+      </div>
+    </div>
+
+    <div class="modes">
+      <button class="mode-btn btn3d" data-mode="vocab"><span class="mi">📖</span>たんご<small>いみを あてよう</small></button>
+      <button class="mode-btn btn3d" data-mode="grammar"><span class="mi">✏️</span>ぶんぽう<small>あなうめ もんだい</small></button>
+      <button class="mode-btn btn3d" data-mode="convo"><span class="mi">💬</span>かいわ<small>へんじを えらぼう</small></button>
+      <button class="mode-btn btn3d" data-mode="listen"><span class="mi">🎧</span>リスニング<small>きいて こたえよう</small></button>
+    </div>
+
+    <div class="subnav">
+      <button id="btn-words" class="btn3d small">📚 たんごちょう</button>
+      <button id="btn-badges" class="btn3d small">🏅 バッジずかん</button>
+    </div>
+  </section>
+
+  <!-- クイズ画面 -->
+  <section id="scr-quiz" class="screen hidden">
+    <div class="quiz-top">
+      <button id="btn-quit" class="chip">← やめる</button>
+      <div class="qnum" id="qnum">1 / 10</div>
+      <div class="score-chip">🪙 <span id="score">0</span></div>
+    </div>
+    <div class="dots" id="dots"></div>
+    <div class="timebar-wrap"><div id="timebar"></div></div>
+
+    <div class="card quiz-card" id="quiz-card">
+      <div class="combo" id="combo"></div>
+      <div class="q-sub" id="q-sub"></div>
+      <div class="q-main" id="q-main"></div>
+      <button id="btn-replay" class="btn3d replay hidden">🔊 もういちど きく</button>
+      <div class="choices" id="choices"></div>
+    </div>
+
+    <div class="feedback hidden" id="feedback">
+      <div id="fb-head"></div>
+      <div id="fb-body"></div>
+      <button id="btn-next" class="btn3d next">つぎへ ▶</button>
+    </div>
+  </section>
+
+  <!-- 結果画面 -->
+  <section id="scr-result" class="screen hidden">
+    <h2 class="res-title">🎊 けっか はっぴょう！ 🎊</h2>
+    <div class="card res-card">
+      <div class="rank" id="rank">S</div>
+      <div class="stars" id="res-stars">
+        <span class="star">★</span><span class="star">★</span><span class="star">★</span>
+      </div>
+      <div class="res-score">スコア <b id="res-score">0</b></div>
+      <div class="res-stats">
+        <span>⭕ せいかい <b id="res-correct">0</b></span>
+        <span>🔥 コンボ <b id="res-combo">0</b></span>
+        <span>💎 XP +<b id="res-xp">0</b></span>
+      </div>
+      <div class="xp-wrap">
+        <div class="xp-bar"><div id="res-xp-fill" class="xp-fill"></div></div>
+        <div class="xp-text" id="res-xp-text"></div>
+      </div>
+    </div>
+    <div class="card review-card hidden" id="review-card">
+      <h3>📝 まちがえた もんだいを ふくしゅうしよう</h3>
+      <ul id="review-list"></ul>
+    </div>
+    <div class="res-btns">
+      <button id="btn-retry" class="btn3d">🔁 もういちど</button>
+      <button id="btn-home" class="btn3d alt">🏠 ホームへ</button>
+    </div>
+  </section>
+
+  <!-- バッジ画面 -->
+  <section id="scr-badges" class="screen hidden">
+    <h2 class="page-title">🏅 バッジずかん</h2>
+    <div class="badge-grid" id="badge-grid"></div>
+    <div class="res-btns"><button id="btn-badges-back" class="btn3d alt">🏠 ホームへ</button></div>
+  </section>
+
+  <!-- たんごちょう画面 -->
+  <section id="scr-words" class="screen hidden">
+    <h2 class="page-title">📚 たんごちょう</h2>
+    <p class="page-note">カードをタップすると はつおんが きけるよ！🔊</p>
+    <div class="word-grid" id="word-grid"></div>
+    <div class="res-btns"><button id="btn-words-back" class="btn3d alt">🏠 ホームへ</button></div>
+  </section>
+
+</main>
+
+<!-- レベルアップ演出 -->
+<div id="levelup" class="overlay hidden">
+  <div class="lv-pop">
+    <div class="lv-big">🎉</div>
+    <h2>レベルアップ！</h2>
+    <div class="lv-new">Lv.<span id="lv-new">2</span></div>
+    <button class="btn3d" id="lv-ok">やったー！</button>
+  </div>
+</div>
+
+<div id="toast-area"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
