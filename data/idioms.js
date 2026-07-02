@@ -1,28 +1,14 @@
-/* 熟語・句動詞データ {id, w, ja, ex:例文}
-   フェーズ2で 300 規模に拡充予定 */
-window.DATA_IDIOMS = [
-  { id: "i0001", w: "look forward to 〜", ja: "〜を楽しみに待つ", ex: "I'm looking forward to seeing you." },
-  { id: "i0002", w: "be interested in 〜", ja: "〜にきょうみがある", ex: "She is interested in science." },
-  { id: "i0003", w: "be good at 〜", ja: "〜が得意（とくい）だ", ex: "He is good at playing tennis." },
-  { id: "i0004", w: "give up", ja: "あきらめる・やめる", ex: "Don't give up your dream." },
-  { id: "i0005", w: "take care of 〜", ja: "〜の世話（せわ）をする", ex: "I take care of my little sister." },
-  { id: "i0006", w: "be afraid of 〜", ja: "〜がこわい", ex: "My brother is afraid of dogs." },
-  { id: "i0007", w: "at first", ja: "さいしょは", ex: "At first, I couldn't swim at all." },
-  { id: "i0008", w: "for example", ja: "たとえば", ex: "I like fruit, for example, apples and grapes." },
-  { id: "i0009", w: "in fact", ja: "実は・実際は", ex: "In fact, he is a famous singer." },
-  { id: "i0010", w: "be famous for 〜", ja: "〜で有名だ", ex: "Kyoto is famous for its old temples." },
-  { id: "i0011", w: "be different from 〜", ja: "〜とちがう", ex: "My idea is different from yours." },
-  { id: "i0012", w: "be full of 〜", ja: "〜でいっぱいだ", ex: "The box was full of old books." },
-  { id: "i0013", w: "on time", ja: "時間どおりに", ex: "The train arrived on time." },
-  { id: "i0014", w: "right away", ja: "すぐに", ex: "I'll call you back right away." },
-  { id: "i0015", w: "take part in 〜", ja: "〜に参加（さんか）する", ex: "She took part in the speech contest." },
-  { id: "i0016", w: "be late for 〜", ja: "〜におくれる", ex: "Don't be late for school." },
-  { id: "i0017", w: "be proud of 〜", ja: "〜をほこりに思う", ex: "I'm proud of my team." },
-  { id: "i0018", w: "get along with 〜", ja: "〜と仲よくやる", ex: "He gets along with his classmates." },
-  { id: "i0019", w: "look after 〜", ja: "〜の世話をする", ex: "Can you look after my cat this weekend?" },
-  { id: "i0020", w: "by mistake", ja: "まちがえて", ex: "I took your umbrella by mistake." },
-  { id: "i0021", w: "at last", ja: "ついに・やっと", ex: "At last, the rain stopped." },
-  { id: "i0022", w: "a variety of 〜", ja: "いろいろな〜", ex: "The shop sells a variety of cheese." },
-  { id: "i0023", w: "instead of 〜", ja: "〜のかわりに", ex: "I drank tea instead of coffee." },
-  { id: "i0024", w: "thanks to 〜", ja: "〜のおかげで", ex: "Thanks to your help, I finished my homework." },
-];
+/* 熟語データ アグリゲータ（英検準2級頻出の熟語・句動詞・構文）
+   idはファイル内の並び順から自動付与（追加は各配列の末尾のみ） */
+(function () {
+  function expand(arr, prefix) {
+    return (arr || []).map((e, i) => ({
+      id: prefix + String(i + 1).padStart(4, "0"),
+      w: e[0], ja: e[1], ex: e[2],
+    }));
+  }
+  window.DATA_IDIOMS = [].concat(
+    expand(window.IDIOM_1, "iA"),
+    expand(window.IDIOM_2, "iB")
+  );
+})();

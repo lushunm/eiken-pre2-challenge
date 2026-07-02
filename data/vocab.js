@@ -1,68 +1,19 @@
-/* 単語データ {id, w:英語, pos:品詞, ja:意味, lv:CEFRレベル帯}
-   フェーズ2で CEFR-J Wordlist 準拠の 1,500語規模に拡充予定 */
-window.DATA_VOCAB = [
-  { id: "v0001", w: "environment", pos: "名", ja: "環境（かんきょう）", lv: "B1" },
-  { id: "v0002", w: "experience", pos: "名", ja: "経験（けいけん）", lv: "A2" },
-  { id: "v0003", w: "opportunity", pos: "名", ja: "機会（きかい）・チャンス", lv: "B1" },
-  { id: "v0004", w: "increase", pos: "動", ja: "ふえる・ふやす", lv: "A2" },
-  { id: "v0005", w: "reduce", pos: "動", ja: "へらす", lv: "B1" },
-  { id: "v0006", w: "decide", pos: "動", ja: "決める（きめる）", lv: "A2" },
-  { id: "v0007", w: "arrive", pos: "動", ja: "とうちゃくする", lv: "A1" },
-  { id: "v0008", w: "borrow", pos: "動", ja: "借りる（かりる）", lv: "A2" },
-  { id: "v0009", w: "lend", pos: "動", ja: "貸す（かす）", lv: "A2" },
-  { id: "v0010", w: "invite", pos: "動", ja: "しょうたいする", lv: "A2" },
-  { id: "v0011", w: "receive", pos: "動", ja: "受け取る（うけとる）", lv: "A2" },
-  { id: "v0012", w: "prepare", pos: "動", ja: "じゅんびする", lv: "A2" },
-  { id: "v0013", w: "promise", pos: "動", ja: "約束する（やくそくする）", lv: "A2" },
-  { id: "v0014", w: "share", pos: "動", ja: "分け合う（わけあう）", lv: "A2" },
-  { id: "v0015", w: "save", pos: "動", ja: "救う（すくう）・ためる", lv: "A2" },
-  { id: "v0016", w: "spend", pos: "動", ja: "（お金や時間を）使う", lv: "A2" },
-  { id: "v0017", w: "improve", pos: "動", ja: "よくする・上達する", lv: "B1" },
-  { id: "v0018", w: "protect", pos: "動", ja: "守る（まもる）", lv: "A2" },
-  { id: "v0019", w: "produce", pos: "動", ja: "生産する（せいさんする）", lv: "B1" },
-  { id: "v0020", w: "provide", pos: "動", ja: "あたえる・ていきょうする", lv: "B1" },
-  { id: "v0021", w: "collect", pos: "動", ja: "集める（あつめる）", lv: "A2" },
-  { id: "v0022", w: "explain", pos: "動", ja: "説明する（せつめいする）", lv: "A2" },
-  { id: "v0023", w: "express", pos: "動", ja: "表現する（ひょうげんする）", lv: "B1" },
-  { id: "v0024", w: "imagine", pos: "動", ja: "想像する（そうぞうする）", lv: "A2" },
-  { id: "v0025", w: "continue", pos: "動", ja: "続ける（つづける）", lv: "A2" },
-  { id: "v0026", w: "finally", pos: "副", ja: "ついに・最後に", lv: "A2" },
-  { id: "v0027", w: "probably", pos: "副", ja: "たぶん", lv: "A2" },
-  { id: "v0028", w: "recently", pos: "副", ja: "最近（さいきん）", lv: "A2" },
-  { id: "v0029", w: "suddenly", pos: "副", ja: "とつぜん", lv: "A2" },
-  { id: "v0030", w: "actually", pos: "副", ja: "実は（じつは）", lv: "A2" },
-  { id: "v0031", w: "foreign", pos: "形", ja: "外国の（がいこくの）", lv: "A2" },
-  { id: "v0032", w: "favorite", pos: "形", ja: "いちばん好きな", lv: "A1" },
-  { id: "v0033", w: "healthy", pos: "形", ja: "けんこうによい", lv: "A2" },
-  { id: "v0034", w: "dangerous", pos: "形", ja: "きけんな", lv: "A2" },
-  { id: "v0035", w: "expensive", pos: "形", ja: "（ねだんが）高い", lv: "A1" },
-  { id: "v0036", w: "cheap", pos: "形", ja: "（ねだんが）安い", lv: "A1" },
-  { id: "v0037", w: "famous", pos: "形", ja: "有名な（ゆうめいな）", lv: "A1" },
-  { id: "v0038", w: "difficult", pos: "形", ja: "むずかしい", lv: "A1" },
-  { id: "v0039", w: "similar", pos: "形", ja: "にている", lv: "A2" },
-  { id: "v0040", w: "different", pos: "形", ja: "ちがった・べつの", lv: "A1" },
-  { id: "v0041", w: "important", pos: "形", ja: "重要な（じゅうような）", lv: "A1" },
-  { id: "v0042", w: "necessary", pos: "形", ja: "必要な（ひつような）", lv: "A2" },
-  { id: "v0043", w: "popular", pos: "形", ja: "人気のある（にんきのある）", lv: "A1" },
-  { id: "v0044", w: "comfortable", pos: "形", ja: "かいてきな・気持ちいい", lv: "A2" },
-  { id: "v0045", w: "convenient", pos: "形", ja: "便利な（べんりな）", lv: "A2" },
-  { id: "v0046", w: "traditional", pos: "形", ja: "でんとうてきな", lv: "A2" },
-  { id: "v0047", w: "international", pos: "形", ja: "国際的な（こくさいてきな）", lv: "A2" },
-  { id: "v0048", w: "professional", pos: "形", ja: "プロの", lv: "B1" },
-  { id: "v0049", w: "delicious", pos: "形", ja: "とてもおいしい", lv: "A1" },
-  { id: "v0050", w: "nervous", pos: "形", ja: "きんちょうしている", lv: "A2" },
-  { id: "v0051", w: "ceremony", pos: "名", ja: "式（しき）・セレモニー", lv: "B1" },
-  { id: "v0052", w: "century", pos: "名", ja: "世紀（せいき）・100年", lv: "A2" },
-  { id: "v0053", w: "custom", pos: "名", ja: "（国や地域の）習慣（しゅうかん）", lv: "B1" },
-  { id: "v0054", w: "distance", pos: "名", ja: "きょり", lv: "A2" },
-  { id: "v0055", w: "effort", pos: "名", ja: "努力（どりょく）", lv: "B1" },
-  { id: "v0056", w: "purpose", pos: "名", ja: "目的（もくてき）", lv: "B1" },
-  { id: "v0057", w: "reason", pos: "名", ja: "理由（りゆう）", lv: "A2" },
-  { id: "v0058", w: "result", pos: "名", ja: "結果（けっか）", lv: "A2" },
-  { id: "v0059", w: "skill", pos: "名", ja: "うでまえ・技術（ぎじゅつ）", lv: "A2" },
-  { id: "v0060", w: "habit", pos: "名", ja: "（自分の）くせ・習慣", lv: "A2" },
-  { id: "v0061", w: "neighbor", pos: "名", ja: "近所の人（きんじょのひと）", lv: "A2" },
-  { id: "v0062", w: "passenger", pos: "名", ja: "乗客（じょうきゃく）", lv: "A2" },
-  { id: "v0063", w: "tourist", pos: "名", ja: "観光客（かんこうきゃく）", lv: "A2" },
-  { id: "v0064", w: "vacation", pos: "名", ja: "休暇（きゅうか）・休み", lv: "A2" },
-];
+/* 単語データ アグリゲータ
+   語彙選定の出典: 『CEFR-J Wordlist Version 1.5』東京外国語大学投野由紀夫研究室
+   （http://www.cefr-j.org/ / openlanguageprofiles/olp-en-cefrj のCSV版を利用）
+   A2レベル全域＋B1レベルから英検準2級頻出語を選定。和訳は本アプリ向けに作成。
+   idはファイル内の並び順から自動付与（既存idを保つため、追加は各配列の末尾のみ） */
+(function () {
+  function expand(arr, lv, prefix) {
+    return (arr || []).map((e, i) => ({
+      id: prefix + String(i + 1).padStart(4, "0"),
+      w: e[0], pos: e[1], ja: e[2], lv,
+    }));
+  }
+  window.DATA_VOCAB = [].concat(
+    expand(window.VOCAB_A2_1, "A2", "vA"),
+    expand(window.VOCAB_A2_2, "A2", "vB"),
+    expand(window.VOCAB_A2_3, "A2", "vC"),
+    expand(window.VOCAB_B1, "B1", "vD")
+  );
+})();

@@ -371,7 +371,10 @@ function show(id) {
 
 function buildVocabQ(item) {
   const e2j = Math.random() < 0.5;
-  const others = D_VOCAB.filter(v => v.id !== item.id);
+  // 本番と同じく、まちがい選択肢は同じ品詞から選ぶ（足りなければ全体から）
+  // 同じ単語の別品詞エントリは正解になり得るため除外する
+  let others = D_VOCAB.filter(v => v.id !== item.id && v.w !== item.w && v.pos === item.pos && v.ja !== item.ja);
+  if (others.length < 3) others = D_VOCAB.filter(v => v.id !== item.id && v.w !== item.w && v.ja !== item.ja);
   if (e2j) {
     return {
       srcId: item.id, modeKey: "vocab", time: MODES.vocab.time,
