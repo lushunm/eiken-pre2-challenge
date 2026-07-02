@@ -1,197 +1,31 @@
-/* ===== えいけん準2級チャレンジ！ app.js ===== */
+/* ===== えいけん準2級チャレンジ！ app.js (v2: 公式形式対応エンジン) ===== */
 "use strict";
 
-/* ==================== 問題データ ==================== */
+/* ==================== データ参照 ==================== */
+const D_VOCAB    = window.DATA_VOCAB || [];
+const D_IDIOMS   = window.DATA_IDIOMS || [];
+const D_GRAMMAR  = window.DATA_GRAMMAR || [];
+const D_TANBUN   = window.DATA_TANBUN || [];
+const D_KAIWABUN = window.DATA_KAIWABUN || [];
+const D_LISTEN1  = window.DATA_LISTEN1 || [];
+const D_LISTEN2  = window.DATA_LISTEN2 || [];
+const D_LISTEN3  = window.DATA_LISTEN3 || [];
+const D_READING  = window.DATA_READING || [];
+const D_INTERVIEW = window.DATA_INTERVIEW || [];
 
-// 単語（英検準2級レベル）: [英語, 日本語]
-const VOCAB = [
-  ["environment", "環境（かんきょう）"],
-  ["experience", "経験（けいけん）"],
-  ["opportunity", "機会（きかい）・チャンス"],
-  ["increase", "ふえる・ふやす"],
-  ["reduce", "へらす"],
-  ["decide", "決める（きめる）"],
-  ["arrive", "とうちゃくする"],
-  ["borrow", "借りる（かりる）"],
-  ["lend", "貸す（かす）"],
-  ["invite", "しょうたいする"],
-  ["receive", "受け取る（うけとる）"],
-  ["prepare", "じゅんびする"],
-  ["promise", "約束する（やくそくする）"],
-  ["share", "分け合う（わけあう）"],
-  ["save", "救う（すくう）・ためる"],
-  ["spend", "（お金や時間を）使う"],
-  ["improve", "よくする・上達する"],
-  ["protect", "守る（まもる）"],
-  ["produce", "生産する（せいさんする）"],
-  ["provide", "あたえる・ていきょうする"],
-  ["collect", "集める（あつめる）"],
-  ["explain", "説明する（せつめいする）"],
-  ["express", "表現する（ひょうげんする）"],
-  ["imagine", "想像する（そうぞうする）"],
-  ["continue", "続ける（つづける）"],
-  ["finally", "ついに・最後に"],
-  ["probably", "たぶん"],
-  ["recently", "最近（さいきん）"],
-  ["suddenly", "とつぜん"],
-  ["actually", "実は（じつは）"],
-  ["foreign", "外国の（がいこくの）"],
-  ["favorite", "いちばん好きな"],
-  ["healthy", "けんこうによい"],
-  ["dangerous", "きけんな"],
-  ["expensive", "（ねだんが）高い"],
-  ["cheap", "（ねだんが）安い"],
-  ["famous", "有名な（ゆうめいな）"],
-  ["difficult", "むずかしい"],
-  ["similar", "にている"],
-  ["different", "ちがった・べつの"],
-  ["important", "重要な（じゅうような）"],
-  ["necessary", "必要な（ひつような）"],
-  ["popular", "人気のある（にんきのある）"],
-  ["comfortable", "かいてきな・気持ちいい"],
-  ["convenient", "便利な（べんりな）"],
-  ["traditional", "でんとうてきな"],
-  ["international", "国際的な（こくさいてきな）"],
-  ["professional", "プロの"],
-  ["delicious", "とてもおいしい"],
-  ["nervous", "きんちょうしている"],
-  ["ceremony", "式（しき）・セレモニー"],
-  ["century", "世紀（せいき）・100年"],
-  ["custom", "（国や地域の）習慣（しゅうかん）"],
-  ["distance", "きょり"],
-  ["effort", "努力（どりょく）"],
-  ["purpose", "目的（もくてき）"],
-  ["reason", "理由（りゆう）"],
-  ["result", "結果（けっか）"],
-  ["skill", "うでまえ・技術（ぎじゅつ）"],
-  ["habit", "（自分の）くせ・習慣"],
-  ["neighbor", "近所の人（きんじょのひと）"],
-  ["passenger", "乗客（じょうきゃく）"],
-  ["tourist", "観光客（かんこうきゃく）"],
-  ["vacation", "休暇（きゅうか）・休み"],
-];
-
-// 文法: q（___ が空所）, a=正解, d=まちがい選択肢, e=かいせつ
-const GRAMMAR = [
-  { q: "I enjoy ___ soccer with my friends.", a: "playing", d: ["play", "played", "to play"],
-    e: "enjoy のあとは 〜ing（動名詞）！「enjoy 〜ing」で「〜して楽しむ」だよ。" },
-  { q: "She has lived in Osaka ___ 2020.", a: "since", d: ["for", "from", "at"],
-    e: "since 2020 =「2020年から（ずっと）」。has lived（現在完了）といっしょに使うよ。" },
-  { q: "Math is ___ than English for me.", a: "more difficult", d: ["difficult", "most difficult", "difficulter"],
-    e: "difficult のような長い単語は more をつけてくらべるよ。" },
-  { q: "I want something cold ___.", a: "to drink", d: ["drink", "drinking", "drank"],
-    e: "something cold to drink =「何かつめたい飲み物」。to +動詞で「〜するための」という意味になるよ。" },
-  { q: "This letter was ___ by my grandmother.", a: "written", d: ["write", "wrote", "writing"],
-    e: "was + written（過去分詞）で「書かれた」という受け身になるよ。" },
-  { q: "If it ___ tomorrow, we will stay home.", a: "rains", d: ["will rain", "rained", "raining"],
-    e: "if のなか（条件）は、未来のことでも現在形を使うよ。" },
-  { q: "I have a friend ___ can speak three languages.", a: "who", d: ["which", "what", "whose"],
-    e: "人について説明するときは who を使うよ（関係代名詞）。" },
-  { q: "My sister is good ___ singing.", a: "at", d: ["in", "on", "for"],
-    e: "be good at 〜ing =「〜が得意（とくい）」。" },
-  { q: "Ken stopped ___ TV and did his homework.", a: "watching", d: ["watch", "to watch", "watched"],
-    e: "stop 〜ing =「〜するのをやめる」。" },
-  { q: "I'm looking forward to ___ you soon.", a: "seeing", d: ["see", "saw", "be seen"],
-    e: "look forward to 〜ing =「〜を楽しみにする」。この to のあとは 〜ing！" },
-  { q: "This is the ___ movie I have ever watched.", a: "best", d: ["good", "better", "well"],
-    e: "the best =「いちばんよい」。最上級（さいじょうきゅう）だよ。" },
-  { q: "Our teacher told us ___ quiet.", a: "to be", d: ["be", "being", "been"],
-    e: "tell 人 to 〜 =「人に〜するように言う」。" },
-  { q: "Yuki is ___ tall as her mother.", a: "as", d: ["so", "more", "much"],
-    e: "as 〜 as ... =「...と同じくらい〜」。" },
-  { q: "I have never ___ to a foreign country.", a: "been", d: ["go", "went", "being"],
-    e: "have been to 〜 =「〜へ行ったことがある」。never で「一度もない」。" },
-  { q: "The news made me ___.", a: "happy", d: ["happily", "happiness", "to happy"],
-    e: "make 人 + 形容詞 =「人を〜（な気持ち）にする」。だから happy！" },
-  { q: "Do you know where ___?", a: "he lives", d: ["does he live", "lives he", "is he live"],
-    e: "文のなかの疑問文（間接疑問）は「where + ふつうの語順」になるよ。" },
-  { q: "It is important ___ us to eat breakfast.", a: "for", d: ["of", "to", "with"],
-    e: "It is ... for 人 to 〜 =「人にとって〜することは...だ」。" },
-  { q: "I was ___ tired to walk.", a: "too", d: ["so", "very", "much"],
-    e: "too ... to 〜 =「...すぎて〜できない」。" },
-  { q: "The boy ___ over there is my brother.", a: "standing", d: ["stand", "stood", "stands"],
-    e: "standing over there =「あそこに立っている」。〜ing で名詞を説明できるよ。" },
-  { q: "I don't know what ___ next.", a: "to do", d: ["do", "doing", "did"],
-    e: "what to do =「何をすべきか」。" },
-  { q: "She left the room without ___ goodbye.", a: "saying", d: ["say", "said", "to say"],
-    e: "without 〜ing =「〜しないで」。前置詞のあとは 〜ing だよ。" },
-  { q: "___ you like some more tea?", a: "Would", d: ["Will", "Are", "Do"],
-    e: "Would you like 〜? =「〜はいかがですか」。ていねいな言い方だよ。" },
-  { q: "My father has ___ finished dinner.", a: "already", d: ["yet", "still", "ever"],
-    e: "already =「もう（〜した）」。have + already + 過去分詞。" },
-  { q: "I wish I ___ fly like a bird.", a: "could", d: ["can", "will", "may"],
-    e: "I wish I could 〜 =「〜できたらいいのに」。願いごとは could を使うよ。" },
-];
-
-// 会話: aLine=Aさんのセリフ, a=正しいへんじ, d=まちがい, e=かいせつ
-const CONVO = [
-  { aLine: "I'm sorry I'm late.", a: "That's all right.", d: ["Yes, please.", "Me, too.", "Good job."],
-    e: "「おくれてごめんね」→ That's all right.（だいじょうぶだよ）" },
-  { aLine: "Would you like another piece of cake?", a: "No, thank you. I'm full.", d: ["Yes, it is.", "Here you are.", "That's too bad."],
-    e: "おなかいっぱいのときは No, thank you.（いいえ、けっこうです）" },
-  { aLine: "How was your trip to Okinawa?", a: "It was great!", d: ["You're welcome.", "See you soon.", "It's mine."],
-    e: "How was 〜? =「〜はどうだった？」→ 感想（かんそう）を答えるよ。" },
-  { aLine: "Hello. May I speak to Mr. Brown, please?", a: "Speaking.", d: ["I'm home.", "You, too.", "It's over there."],
-    e: "電話で「私です」は Speaking. と言うよ。" },
-  { aLine: "What's wrong? You look pale.", a: "I have a headache.", d: ["That sounds fun.", "Nice to meet you.", "Sure, go ahead."],
-    e: "What's wrong? =「どうしたの？」→ ぐあいを答えるよ。headache =頭痛（ずつう）。" },
-  { aLine: "Could you pass me the salt?", a: "Here you are.", d: ["I'm afraid so.", "Never mind.", "Long time no see."],
-    e: "物をわたすときは Here you are.（はい、どうぞ）" },
-  { aLine: "Thank you so much for helping me.", a: "My pleasure.", d: ["That's mine.", "I hope so.", "Excuse me."],
-    e: "お礼を言われたら My pleasure.（どういたしまして）" },
-  { aLine: "Shall we go to the movies this weekend?", a: "Sounds good!", d: ["I ate it.", "It was sunny.", "You did it."],
-    e: "さそわれて OK のときは Sounds good!（いいね！）" },
-  { aLine: "Excuse me. How can I get to the station?", a: "Take the No. 3 bus.", d: ["At seven o'clock.", "Three times.", "It's 500 yen."],
-    e: "How can I get to 〜? =「〜へはどう行けばいい？」→ 行き方を答えるよ。" },
-  { aLine: "Guess what! I passed the test!", a: "Congratulations!", d: ["That's too bad.", "Take care.", "Calm down."],
-    e: "うれしい知らせには Congratulations!（おめでとう！）" },
-  { aLine: "Can I borrow your eraser?", a: "Sure, here you are.", d: ["Yes, I can.", "No, I'm not.", "It's raining."],
-    e: "Can I 〜? と聞かれたら Sure（いいよ）などで答えるよ。" },
-  { aLine: "How often do you practice the piano?", a: "Twice a week.", d: ["For two hours.", "Two years ago.", "By bus."],
-    e: "How often =「どのくらいよく（回数）」→ Twice a week（週2回）。" },
-];
-
-// リスニング: en=読み上げる英文, ja=正しい意味
-const LISTEN = [
-  { en: "I went shopping with my mother yesterday.", ja: "きのう、お母さんと買い物に行きました" },
-  { en: "It will be rainy tomorrow.", ja: "あしたは雨がふるでしょう" },
-  { en: "My favorite subject is science.", ja: "いちばん好きな教科は理科です" },
-  { en: "Can you help me with my homework?", ja: "宿題（しゅくだい）を手伝ってくれる？" },
-  { en: "The library opens at nine.", ja: "図書館は9時に開きます" },
-  { en: "I have been to Kyoto twice.", ja: "京都に2回行ったことがあります" },
-  { en: "She is the fastest runner in our class.", ja: "彼女はクラスでいちばん足が速いです" },
-  { en: "Don't forget to bring your lunch.", ja: "お弁当を持ってくるのをわすれないでね" },
-  { en: "I'm going to visit my grandfather next Sunday.", ja: "今度の日曜日におじいちゃんに会いに行く予定です" },
-  { en: "This cake was made by my sister.", ja: "このケーキはお姉ちゃんが作りました" },
-  { en: "He practices soccer every day after school.", ja: "彼は毎日、放課後にサッカーを練習します" },
-  { en: "May I open the window?", ja: "まどを開けてもいいですか？" },
-  { en: "I was reading a book when you called me.", ja: "電話をくれたとき、本を読んでいました" },
-  { en: "There are many famous places in this city.", ja: "この町には有名な場所がたくさんあります" },
-  { en: "Studying English is fun for me.", ja: "英語を勉強することは私にとって楽しいです" },
-  { en: "If you are free, let's play games together.", ja: "ひまなら、いっしょにゲームをしよう" },
-];
-
-// バッジ
-const BADGES = [
-  { id: "first",     icon: "🐣", name: "はじめのいっぽ",   desc: "はじめてクイズをクリアした", chk: p => p.plays >= 1 },
-  { id: "perfect",   icon: "💯", name: "パーフェクト！",   desc: "10もん ぜんもん せいかい", chk: p => p.perfects >= 1 },
-  { id: "combo10",   icon: "🔥", name: "コンボマスター",   desc: "10コンボ たっせい", chk: p => p.bestCombo >= 10 },
-  { id: "vocab50",   icon: "📚", name: "たんごはかせ",     desc: "たんごクイズで50もんせいかい", chk: p => p.correct.vocab >= 50 },
-  { id: "grammar50", icon: "👑", name: "ぶんぽうキング",   desc: "ぶんぽうクイズで50もんせいかい", chk: p => p.correct.grammar >= 50 },
-  { id: "convo30",   icon: "💬", name: "かいわのたつじん", desc: "かいわクイズで30もんせいかい", chk: p => p.correct.convo >= 30 },
-  { id: "listen30",  icon: "🎧", name: "きくのめいじん",   desc: "リスニングで30もんせいかい", chk: p => p.correct.listen >= 30 },
-  { id: "allmode",   icon: "🌈", name: "ぜんぶチャレンジ", desc: "4つのモードをぜんぶあそんだ", chk: p => p.modes.length >= 4 },
-  { id: "level5",    icon: "⭐", name: "レベル5",          desc: "レベル5にとうたつ", chk: p => p.level >= 5 },
-  { id: "level10",   icon: "🌟", name: "レベル10",         desc: "レベル10にとうたつ", chk: p => p.level >= 10 },
-  { id: "star30",    icon: "✨", name: "スターコレクター", desc: "ほしを30こあつめた", chk: p => p.stars >= 30 },
-  { id: "streak3",   icon: "📅", name: "まいにちコツコツ", desc: "3日れんぞくであそんだ", chk: p => p.streak >= 3 },
-];
-
+/* ==================== モード設定 ==================== */
 const MODES = {
-  vocab:   { name: "たんごクイズ",   time: 12 },
-  grammar: { name: "ぶんぽうクイズ", time: 20 },
-  convo:   { name: "かいわクイズ",   time: 20 },
-  listen:  { name: "リスニング",     time: 25 },
+  vocab:     { name: "たんごクイズ",           n: 10, time: 15 },
+  idioms:    { name: "じゅくごクイズ",         n: 10, time: 18 },
+  grammar:   { name: "ぶんぽうクイズ",         n: 10, time: 25 },
+  tanbun:    { name: "たんぶん（大問1形式）",   n: 10, time: 35 },
+  kaiwabun:  { name: "かいわぶん（大問2形式）", n: 8,  time: 45 },
+  reading:   { name: "ちょうぶん よみとき",     n: 2,  time: 90 },  // n = パッセージ数
+  listen1:   { name: "リスニング第1部",        n: 10, time: 20 },
+  listen2:   { name: "リスニング第2部",        n: 8,  time: 25 },
+  listen3:   { name: "リスニング第3部",        n: 8,  time: 25 },
+  listenmix: { name: "リスニングミックス",     n: 10, time: 25 },
+  review:    { name: "ふくしゅう",             n: 10, time: 40 },
 };
 
 const MASCOT_MSGS = [
@@ -200,13 +34,14 @@ const MASCOT_MSGS = [
   "リスニングは 何回でも きけるよ🎧",
   "まちがえても だいじょうぶ！ふくしゅうが だいじ！",
   "レベルアップまで あとすこし かも！？",
-  "たんごちょうで はつおんの れんしゅうも できるよ！",
+  "「ほんばん形式」は 英検と同じ形の問題だよ！",
+  "にがてな問題は 💊ふくしゅうモードで たいじしよう！",
+  "めんせつの れんしゅうも できるよ🎤",
   "バッジを ぜんぶ あつめられるかな？",
   "まいにち つづけると 🔥れんぞく日数が のびるよ！",
 ];
 
 /* ==================== ユーティリティ ==================== */
-
 const $ = id => document.getElementById(id);
 
 function shuffle(arr) {
@@ -218,11 +53,13 @@ function shuffle(arr) {
   return a;
 }
 const sample = (arr, n) => shuffle(arr).slice(0, n);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
 function esc(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
     .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
+function trunc(s, n) { s = String(s); return s.length > n ? s.slice(0, n) + "…" : s; }
 
 function todayStr(offsetDays = 0) {
   const d = new Date(Date.now() + offsetDays * 86400000);
@@ -230,29 +67,43 @@ function todayStr(offsetDays = 0) {
 }
 
 /* ==================== セーブデータ ==================== */
-
 const SAVE_KEY = "eikenPre2v1";
+const CORRECT_KEYS = ["vocab", "idioms", "grammar", "tanbun", "kaiwabun", "reading", "listen1", "listen2", "listen3"];
 const DEFAULTS = {
+  v: 2,
   xp: 0, level: 1, stars: 0, badges: [],
-  correct: { vocab: 0, grammar: 0, convo: 0, listen: 0 },
+  correct: {},
   totalAnswered: 0, totalCorrect: 0,
   bestCombo: 0, perfects: 0, modes: [], plays: 0,
   streak: 0, lastDay: "", todayDate: "", todayN: 0,
   missionDone: "",
+  weak: {},
 };
+CORRECT_KEYS.forEach(k => (DEFAULTS.correct[k] = 0));
 
 let P = load();
 
 function load() {
+  const base = JSON.parse(JSON.stringify(DEFAULTS));
   try {
     const raw = localStorage.getItem(SAVE_KEY);
-    if (!raw) return JSON.parse(JSON.stringify(DEFAULTS));
+    if (!raw) return base;
     const d = JSON.parse(raw);
-    const p = Object.assign(JSON.parse(JSON.stringify(DEFAULTS)), d);
-    p.correct = Object.assign({ vocab: 0, grammar: 0, convo: 0, listen: 0 }, d.correct || {});
+    const p = Object.assign(base, d);
+    const c = Object.assign({}, DEFAULTS.correct);
+    if (d.correct) {
+      for (const k of Object.keys(d.correct)) {
+        // v1→v2 移行: 旧モード名を新モード名へ
+        const nk = k === "convo" ? "listen1" : k === "listen" ? "listen3" : k;
+        if (nk in c) c[nk] += d.correct[k] || 0;
+      }
+    }
+    p.correct = c;
+    p.weak = d.weak || {};
+    p.v = 2;
     return p;
   } catch (e) {
-    return JSON.parse(JSON.stringify(DEFAULTS));
+    return base;
   }
 }
 function save() {
@@ -260,9 +111,26 @@ function save() {
 }
 
 const xpNeed = level => 100 + (level - 1) * 50;
+const sumListen = p => (p.correct.listen1 || 0) + (p.correct.listen2 || 0) + (p.correct.listen3 || 0);
+
+/* ==================== バッジ ==================== */
+const CORE_MODES = ["vocab", "idioms", "grammar", "tanbun", "kaiwabun", "reading", "listen1", "listen2", "listen3", "listenmix"];
+const BADGES = [
+  { id: "first",     icon: "🐣", name: "はじめのいっぽ",   desc: "はじめてクイズをクリアした", chk: p => p.plays >= 1 },
+  { id: "perfect",   icon: "💯", name: "パーフェクト！",   desc: "1回のクイズで ぜんもん せいかい", chk: p => p.perfects >= 1 },
+  { id: "combo10",   icon: "🔥", name: "コンボマスター",   desc: "10コンボ たっせい", chk: p => p.bestCombo >= 10 },
+  { id: "vocab50",   icon: "📚", name: "たんごはかせ",     desc: "たんご・じゅくごで50もんせいかい", chk: p => (p.correct.vocab || 0) + (p.correct.idioms || 0) >= 50 },
+  { id: "grammar50", icon: "👑", name: "ぶんぽうキング",   desc: "ぶんぽうクイズで50もんせいかい", chk: p => (p.correct.grammar || 0) >= 50 },
+  { id: "convo30",   icon: "💬", name: "かいわのたつじん", desc: "かいわぶん・第1部で30もんせいかい", chk: p => (p.correct.kaiwabun || 0) + (p.correct.listen1 || 0) >= 30 },
+  { id: "listen30",  icon: "🎧", name: "きくのめいじん",   desc: "リスニングで30もんせいかい", chk: p => sumListen(p) >= 30 },
+  { id: "allmode",   icon: "🌈", name: "ぜんぶチャレンジ", desc: "6しゅるいのモードであそんだ", chk: p => p.modes.filter(m => CORE_MODES.includes(m)).length >= 6 },
+  { id: "level5",    icon: "⭐", name: "レベル5",          desc: "レベル5にとうたつ", chk: p => p.level >= 5 },
+  { id: "level10",   icon: "🌟", name: "レベル10",         desc: "レベル10にとうたつ", chk: p => p.level >= 10 },
+  { id: "star30",    icon: "✨", name: "スターコレクター", desc: "ほしを30こあつめた", chk: p => p.stars >= 30 },
+  { id: "streak3",   icon: "📅", name: "まいにちコツコツ", desc: "3日れんぞくであそんだ", chk: p => p.streak >= 3 },
+];
 
 /* ==================== サウンド（Web Audio） ==================== */
-
 let actx = null;
 function ensureAudio() {
   if (!actx) {
@@ -271,7 +139,6 @@ function ensureAudio() {
   }
   if (actx && actx.state === "suspended") actx.resume();
 }
-
 function tone(freq, dur, type = "sine", vol = 0.18, delay = 0, slideTo = null) {
   if (!actx) return;
   const t0 = actx.currentTime + delay;
@@ -286,7 +153,6 @@ function tone(freq, dur, type = "sine", vol = 0.18, delay = 0, slideTo = null) {
   osc.start(t0);
   osc.stop(t0 + dur + 0.05);
 }
-
 function sClick()  { tone(700, 0.08, "triangle", 0.12); }
 function sCorrect(combo) {
   const up = Math.min(combo, 8) * 40;
@@ -308,36 +174,71 @@ function sLevelUp() {
   tone(1568, 0.6, "triangle", 0.22, 0.58);
 }
 
-/* ==================== 音声読み上げ ==================== */
-
-let enVoice = null;
-function pickVoice() {
-  if (!("speechSynthesis" in window)) return;
-  const vs = speechSynthesis.getVoices();
-  enVoice =
-    vs.find(v => /en[-_]US/i.test(v.lang) && /Google|Natural|Online/i.test(v.name)) ||
-    vs.find(v => /en[-_]US/i.test(v.lang)) ||
-    vs.find(v => /^en/i.test(v.lang)) || null;
+/* ==================== 音声読み上げ（2話者対応） ==================== */
+const hasTTS = "speechSynthesis" in window;
+let voiceA = null, voiceB = null;
+function pickVoices() {
+  if (!hasTTS) return;
+  const vs = speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang));
+  if (!vs.length) return;
+  const us = vs.filter(v => /en[-_]US/i.test(v.lang));
+  const pool = us.length ? us : vs;
+  const preferred = pool.filter(v => /Google|Natural|Online|Premium/i.test(v.name));
+  voiceA = preferred[0] || pool[0] || null;
+  const others = pool.filter(v => v !== voiceA);
+  const prefB = others.filter(v => /Google|Natural|Online|Premium/i.test(v.name));
+  voiceB = prefB[0] || others[0] || null;
 }
-if ("speechSynthesis" in window) {
-  pickVoice();
-  speechSynthesis.onvoiceschanged = pickVoice;
+if (hasTTS) {
+  pickVoices();
+  speechSynthesis.onvoiceschanged = pickVoices;
 }
 
-function speak(text, rate = 0.92, onend = null) {
-  if (!("speechSynthesis" in window)) return;
-  speechSynthesis.cancel();
+let speakToken = 0;
+function cancelSpeech() {
+  speakToken++;
+  if (hasTTS) speechSynthesis.cancel();
+}
+
+function speak(text, rate = 0.92, onend = null, speaker = "A") {
+  if (!hasTTS) { if (onend) onend(); return; }
+  cancelSpeech();
+  const my = speakToken;
   const u = new SpeechSynthesisUtterance(text);
   u.lang = "en-US";
-  if (enVoice) u.voice = enVoice;
+  const v = speaker === "B" ? (voiceB || voiceA) : voiceA;
+  if (v) u.voice = v;
+  u.pitch = speaker === "B" && !voiceB ? 0.8 : 1.05;
   u.rate = rate;
-  u.pitch = 1.05;
-  if (onend) u.onend = onend;
+  u.onend = () => { if (my === speakToken && onend) onend(); };
+  u.onerror = () => { if (my === speakToken && onend) onend(); };
   speechSynthesis.speak(u);
 }
 
-/* ==================== エフェクト（パーティクル） ==================== */
+// 会話スクリプト [[話者, セリフ], ...] を順番に再生
+function playScript(lines, ondone, rate = 0.92) {
+  if (!hasTTS) { if (ondone) ondone(); return; }
+  cancelSpeech();
+  const my = speakToken;
+  let i = 0;
+  const step = () => {
+    if (my !== speakToken) return;         // キャンセルされた
+    if (i >= lines.length) { if (ondone) ondone(); return; }
+    const [sp, text] = lines[i++];
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    const v = sp === "B" ? (voiceB || voiceA) : voiceA;
+    if (v) u.voice = v;
+    u.pitch = sp === "B" && !voiceB ? 0.8 : sp === "B" ? 1.0 : 1.05;
+    u.rate = rate;
+    u.onend = step;
+    u.onerror = step;
+    speechSynthesis.speak(u);
+  };
+  step();
+}
 
+/* ==================== エフェクト（パーティクル） ==================== */
 const fx = $("fx");
 const fctx = fx.getContext("2d");
 let parts = [];
@@ -363,7 +264,6 @@ function burst(x, y, n = 20) {
   }
   runFx();
 }
-
 function confetti(n = 130) {
   for (let i = 0; i < n; i++) {
     parts.push({
@@ -378,7 +278,6 @@ function confetti(n = 130) {
   }
   runFx();
 }
-
 function runFx() {
   if (fxOn) return;
   fxOn = true;
@@ -392,8 +291,7 @@ function stepFx() {
     p.x += p.vx;
     p.y += p.vy;
     p.rot += p.vr;
-    const alpha = Math.max(0, 1 - p.age / p.life);
-    fctx.globalAlpha = alpha;
+    fctx.globalAlpha = Math.max(0, 1 - p.age / p.life);
     fctx.fillStyle = p.color;
     if (p.shape === "rect") {
       fctx.save();
@@ -438,7 +336,6 @@ function floatPts(x, y, text) {
 }
 
 /* ==================== トースト ==================== */
-
 const toastQueue = [];
 let toastBusy = false;
 function toast(msg) {
@@ -461,105 +358,214 @@ function pumpToast() {
 }
 
 /* ==================== 画面切りかえ ==================== */
-
 function show(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.add("hidden"));
   $(id).classList.remove("hidden");
   window.scrollTo(0, 0);
 }
 
-/* ==================== ホーム ==================== */
+/* ==================== 問題ビルダー ==================== */
+/* 正規化された問題オブジェクト:
+   { srcId, modeKey, time, sub, main, blank, passage, script, listen,
+     speakOnShow, speakOnReveal, answer, choices, reveal, expl } */
 
-function renderHome() {
-  $("lv").textContent = P.level;
-  const need = xpNeed(P.level);
-  $("xp-fill").style.width = Math.min(100, (P.xp / need) * 100) + "%";
-  $("xp-text").textContent = `${P.xp} / ${need} XP`;
-  $("stat-stars").textContent = P.stars;
-  $("stat-streak").textContent = P.streak;
-  $("stat-badges").textContent = P.badges.length;
+function buildVocabQ(item) {
+  const e2j = Math.random() < 0.5;
+  const others = D_VOCAB.filter(v => v.id !== item.id);
+  if (e2j) {
+    return {
+      srcId: item.id, modeKey: "vocab", time: MODES.vocab.time,
+      sub: "この たんごの いみは？", main: item.w, blank: false,
+      speakOnShow: item.w, speakOnReveal: null,
+      answer: item.ja, choices: shuffle([item.ja, ...sample(others, 3).map(v => v.ja)]),
+      reveal: `${item.w}【${item.pos}】= ${item.ja}`, expl: "",
+    };
+  }
+  return {
+    srcId: item.id, modeKey: "vocab", time: MODES.vocab.time,
+    sub: "この いみの えいごは？", main: item.ja, blank: false,
+    speakOnShow: null, speakOnReveal: item.w,
+    answer: item.w, choices: shuffle([item.w, ...sample(others, 3).map(v => v.w)]),
+    reveal: `${item.w}【${item.pos}】= ${item.ja}`, expl: "",
+  };
+}
 
-  const t = todayStr();
-  const n = P.todayDate === t ? P.todayN : 0;
-  $("mission-fill").style.width = Math.min(100, (n / 30) * 100) + "%";
-  $("mission-text").textContent = n >= 30 ? "たっせい！🎉" : `${n} / 30`;
+function buildIdiomQ(item) {
+  const e2j = Math.random() < 0.5;
+  const others = D_IDIOMS.filter(v => v.id !== item.id);
+  const exSpeak = item.ex || null;
+  if (e2j) {
+    return {
+      srcId: item.id, modeKey: "idioms", time: MODES.idioms.time,
+      sub: "この じゅくごの いみは？", main: item.w, blank: false,
+      speakOnShow: exSpeak, speakOnReveal: null,
+      answer: item.ja, choices: shuffle([item.ja, ...sample(others, 3).map(v => v.ja)]),
+      reveal: `${item.w} = ${item.ja}\n例: ${item.ex}`, expl: "",
+    };
+  }
+  return {
+    srcId: item.id, modeKey: "idioms", time: MODES.idioms.time,
+    sub: "この いみの じゅくごは？", main: item.ja, blank: false,
+    speakOnShow: null, speakOnReveal: exSpeak,
+    answer: item.w, choices: shuffle([item.w, ...sample(others, 3).map(v => v.w)]),
+    reveal: `${item.w} = ${item.ja}\n例: ${item.ex}`, expl: "",
+  };
+}
 
-  $("mascot-msg").textContent = MASCOT_MSGS[Math.floor(Math.random() * MASCOT_MSGS.length)];
+function buildGrammarQ(item) {
+  return {
+    srcId: item.id, modeKey: "grammar", time: MODES.grammar.time,
+    sub: `___ に入るのは どれかな？（${item.topic}）`, main: item.q, blank: true,
+    speakOnShow: null, speakOnReveal: item.q.replace("___", item.a),
+    answer: item.a, choices: shuffle([item.a, ...item.d]),
+    reveal: item.q.replace("___", item.a), expl: item.e,
+  };
+}
+
+function buildTanbunQ(item) {
+  return {
+    srcId: item.id, modeKey: "tanbun", time: MODES.tanbun.time,
+    sub: "文に合う ことばを えらぼう（大問1形式）", main: item.q, blank: true,
+    speakOnShow: null, speakOnReveal: item.q.replace("___", item.a),
+    answer: item.a, choices: shuffle([item.a, ...item.d]),
+    reveal: `${item.q.replace("___", item.a)}\n訳: ${item.ja}`, expl: item.e,
+  };
+}
+
+function buildKaiwabunQ(item) {
+  return {
+    srcId: item.id, modeKey: "kaiwabun", time: MODES.kaiwabun.time,
+    sub: "(　　　) に入る セリフは どれかな？（大問2形式）",
+    main: item.lines.join("\n"), blank: false,
+    speakOnShow: null, speakOnReveal: item.a,
+    answer: item.a, choices: shuffle([item.a, ...item.d]),
+    reveal: item.lines.join("\n").replace("(　　　)", "「" + item.a + "」"), expl: item.e,
+  };
+}
+
+function buildListen1Q(item) {
+  return {
+    srcId: item.id, modeKey: "listen1", time: MODES.listen1.time,
+    sub: "つづきの へんじとして いちばん いいのは？（第1部）",
+    main: "", blank: false, listen: true, script: item.script,
+    speakOnReveal: item.a,
+    answer: item.a, choices: shuffle([item.a, ...item.d]),
+    reveal: scriptText(item.script) + `\n→ こたえ: ${item.a}`, expl: item.e,
+  };
+}
+
+function buildListen2Q(item) {
+  const script = item.script.concat([["Q", item.q]]);
+  return {
+    srcId: item.id, modeKey: "listen2", time: MODES.listen2.time,
+    sub: "かいわを きいて しつもんに こたえよう（第2部）",
+    main: "Q: " + item.q, blank: false, listen: true, script,
+    speakOnReveal: null,
+    answer: item.a, choices: shuffle([item.a, ...item.d]),
+    reveal: scriptText(item.script) + `\nQ: ${item.q}\n→ こたえ: ${item.a}`, expl: item.e,
+  };
+}
+
+function buildListen3Q(item) {
+  const script = [["A", item.passage], ["Q", item.q]];
+  return {
+    srcId: item.id, modeKey: "listen3", time: MODES.listen3.time,
+    sub: "おはなしを きいて しつもんに こたえよう（第3部）",
+    main: "Q: " + item.q, blank: false, listen: true, script,
+    speakOnReveal: null,
+    answer: item.a, choices: shuffle([item.a, ...item.d]),
+    reveal: `${item.passage}\nQ: ${item.q}\n→ こたえ: ${item.a}`, expl: item.e,
+  };
+}
+
+function scriptText(script) {
+  return script.map(([sp, t]) => (sp === "Q" ? "Q: " : sp + ": ") + t).join("\n");
+}
+
+function buildReadingQ(r, qi) {
+  const sq = r.qs[qi];
+  return {
+    srcId: `${r.id}::${qi}`, modeKey: "reading", time: MODES.reading.time,
+    sub: `「${r.title}」を よんで こたえよう（${qi + 1}/${r.qs.length}）`,
+    main: "Q: " + sq.q, blank: false, passage: r.passage,
+    speakOnShow: null, speakOnReveal: null,
+    answer: sq.a, choices: shuffle([sq.a, ...sq.d]),
+    reveal: sq.a, expl: sq.e,
+  };
+}
+
+/* --- レジストリ（ふくしゅうモード用: id → ビルダー＋表示情報） --- */
+const REG = {};
+function regAll() {
+  D_VOCAB.forEach(it => (REG[it.id] = { build: () => buildVocabQ(it), label: it.w, info: it.ja, speakText: it.w, kind: "たんご" }));
+  D_IDIOMS.forEach(it => (REG[it.id] = { build: () => buildIdiomQ(it), label: it.w, info: it.ja, speakText: it.w.replace(/〜/g, ""), kind: "じゅくご" }));
+  D_GRAMMAR.forEach(it => (REG[it.id] = { build: () => buildGrammarQ(it), label: trunc(it.q, 34), info: it.topic, speakText: it.q.replace("___", it.a), kind: "ぶんぽう" }));
+  D_TANBUN.forEach(it => (REG[it.id] = { build: () => buildTanbunQ(it), label: trunc(it.q, 34), info: "たんぶん", speakText: it.q.replace("___", it.a), kind: "たんぶん" }));
+  D_KAIWABUN.forEach(it => (REG[it.id] = { build: () => buildKaiwabunQ(it), label: trunc(it.a, 34), info: "かいわぶん", speakText: it.a, kind: "かいわぶん" }));
+  D_LISTEN1.forEach(it => (REG[it.id] = { build: () => buildListen1Q(it), label: trunc(it.a, 34), info: "リスニング第1部", speakText: it.a, kind: "リスニング" }));
+  D_LISTEN2.forEach(it => (REG[it.id] = { build: () => buildListen2Q(it), label: trunc(it.q, 34), info: "リスニング第2部", speakText: it.a, kind: "リスニング" }));
+  D_LISTEN3.forEach(it => (REG[it.id] = { build: () => buildListen3Q(it), label: trunc(it.q, 34), info: "リスニング第3部", speakText: it.a, kind: "リスニング" }));
+  D_READING.forEach(r => r.qs.forEach((sq, i) => (REG[`${r.id}::${i}`] = { build: () => buildReadingQ(r, i), label: trunc(sq.q, 34), info: `ちょうぶん「${r.title}」`, speakText: sq.a, kind: "ちょうぶん" })));
+}
+
+/* ==================== ラウンド構築 ==================== */
+function buildRound(mode) {
+  switch (mode) {
+    case "vocab":    return sample(D_VOCAB, MODES.vocab.n).map(buildVocabQ);
+    case "idioms":   return sample(D_IDIOMS, MODES.idioms.n).map(buildIdiomQ);
+    case "grammar":  return sample(D_GRAMMAR, MODES.grammar.n).map(buildGrammarQ);
+    case "tanbun":   return sample(D_TANBUN, MODES.tanbun.n).map(buildTanbunQ);
+    case "kaiwabun": return sample(D_KAIWABUN, MODES.kaiwabun.n).map(buildKaiwabunQ);
+    case "reading": {
+      const qs = [];
+      sample(D_READING, MODES.reading.n).forEach(r => r.qs.forEach((_, i) => qs.push(buildReadingQ(r, i))));
+      return qs;
+    }
+    case "listen1":  return sample(D_LISTEN1, MODES.listen1.n).map(buildListen1Q);
+    case "listen2":  return sample(D_LISTEN2, MODES.listen2.n).map(buildListen2Q);
+    case "listen3":  return sample(D_LISTEN3, MODES.listen3.n).map(buildListen3Q);
+    case "listenmix": {
+      const pool = [
+        ...D_LISTEN1.map(it => () => buildListen1Q(it)),
+        ...D_LISTEN2.map(it => () => buildListen2Q(it)),
+        ...D_LISTEN3.map(it => () => buildListen3Q(it)),
+      ];
+      return sample(pool, MODES.listenmix.n).map(f => f());
+    }
+    case "review": {
+      const ids = Object.keys(P.weak).filter(id => REG[id]);
+      return sample(ids, MODES.review.n).map(id => {
+        const q = REG[id].build();
+        q.time = Math.max(q.time, 30);
+        return q;
+      });
+    }
+  }
+  return [];
 }
 
 /* ==================== クイズ本体 ==================== */
-
-let R = null;          // ラウンド状態
+let R = null;
 let timerId = null;
 let autoNextId = null;
 let speakDelayId = null;
 
-function buildQuestions(mode) {
-  if (mode === "vocab") {
-    return sample(VOCAB, 10).map(([w, m]) => {
-      const e2j = Math.random() < 0.5;
-      const others = VOCAB.filter(v => v[0] !== w);
-      if (e2j) {
-        const ds = sample(others, 3).map(v => v[1]);
-        return {
-          mode, sub: "この たんごの いみは？", main: w, blank: false,
-          speakOnShow: w, speakOnReveal: null, answer: m,
-          choices: shuffle([m, ...ds]),
-          reveal: `${w} = ${m}`, expl: "",
-        };
-      } else {
-        const ds = sample(others, 3).map(v => v[0]);
-        return {
-          mode, sub: "この いみの えいごは？", main: m, blank: false,
-          speakOnShow: null, speakOnReveal: w, answer: w,
-          choices: shuffle([w, ...ds]),
-          reveal: `${w} = ${m}`, expl: "",
-        };
-      }
-    });
-  }
-  if (mode === "grammar") {
-    return sample(GRAMMAR, 10).map(g => ({
-      mode, sub: "___ に入るのは どれかな？", main: g.q, blank: true,
-      speakOnShow: null, speakOnReveal: g.q.replace("___", g.a), answer: g.a,
-      choices: shuffle([g.a, ...g.d]),
-      reveal: g.q.replace("___", g.a), expl: g.e,
-    }));
-  }
-  if (mode === "convo") {
-    return sample(CONVO, 10).map(c => ({
-      mode, sub: "🅱 さんは なんて いうかな？", main: `A: ${c.aLine}\nB: ___`, blank: true,
-      speakOnShow: c.aLine, speakOnReveal: c.a, answer: c.a,
-      choices: shuffle([c.a, ...c.d]),
-      reveal: `A: ${c.aLine}\nB: ${c.a}`, expl: c.e,
-    }));
-  }
-  // listen
-  return sample(LISTEN, 10).map(item => {
-    const ds = sample(LISTEN.filter(x => x !== item), 3).map(x => x.ja);
-    return {
-      mode, sub: "なんて 言ったかな？ よくきいてね", main: "", blank: false,
-      listen: true, speakOnShow: item.en, speakOnReveal: null, answer: item.ja,
-      choices: shuffle([item.ja, ...ds]),
-      reveal: `"${item.en}"\n＝「${item.ja}」`, expl: "",
-    };
-  });
-}
-
 function startRound(mode) {
   ensureAudio();
   sClick();
+  if (mode === "review" && !Object.keys(P.weak).filter(id => REG[id]).length) {
+    toast("💮 にがてな もんだいは ないよ！すごい！");
+    return;
+  }
+  const qs = buildRound(mode);
+  if (!qs.length) { toast("もんだいの じゅんびちゅう だよ"); return; }
   R = {
-    mode,
-    qs: buildQuestions(mode),
+    mode, qs,
     i: 0, score: 0, correct: 0, combo: 0, maxCombo: 0,
-    locked: false,
+    locked: false, timerStarted: false, curTime: qs[0].time,
     wrongs: [],
-    timeMax: MODES[mode].time,
-    timeLeft: MODES[mode].time,
   };
   show("scr-quiz");
-  renderDots();
   renderQuestion();
 }
 
@@ -577,11 +583,14 @@ function renderDots() {
 function renderQuestion() {
   const q = R.qs[R.i];
   R.locked = false;
+  R.timerStarted = false;
+  R.curTime = q.time;
   $("qnum").textContent = `${R.i + 1} / ${R.qs.length}`;
   $("score").textContent = R.score;
   $("q-sub").textContent = q.sub;
   $("feedback").classList.add("hidden");
   $("quiz-card").classList.remove("shake");
+  $("listen-state").classList.add("hidden");
 
   // コンボ表示
   const cb = $("combo");
@@ -592,11 +601,20 @@ function renderQuestion() {
     cb.classList.remove("show");
   }
 
+  // パッセージ（長文）
+  const pc = $("passage-card");
+  if (q.passage) {
+    $("passage").textContent = q.passage;
+    pc.classList.remove("hidden");
+  } else {
+    pc.classList.add("hidden");
+  }
+
   // 問題文
   const qm = $("q-main");
   qm.classList.remove("speakable");
   qm.onclick = null;
-  if (q.listen) {
+  if (q.listen && !q.main) {
     qm.innerHTML = `<span class="big-ear">🎧</span>`;
   } else if (q.blank) {
     qm.innerHTML = esc(q.main).replace("___", `<span class="blank">___</span>`);
@@ -609,11 +627,11 @@ function renderQuestion() {
     qm.onclick = () => speak(q.speakOnShow);
   }
 
-  // きく ボタン（リスニング・かいわ）
+  // 再生ボタン
   const rp = $("btn-replay");
-  if (q.speakOnShow && (q.listen || q.mode === "convo")) {
+  if (q.script) {
     rp.classList.remove("hidden");
-    rp.onclick = () => { sClick(); speak(q.speakOnShow); };
+    rp.onclick = () => { sClick(); playCurrentScript(); };
   } else {
     rp.classList.add("hidden");
   }
@@ -631,28 +649,63 @@ function renderQuestion() {
 
   renderDots();
 
-  // 自動読み上げ
   clearTimeout(speakDelayId);
-  if (q.speakOnShow) speakDelayId = setTimeout(() => speak(q.speakOnShow), 400);
+  const bar = $("timebar");
+  bar.classList.remove("low");
+  bar.style.width = "100%";
 
-  startTimer();
+  if (q.script) {
+    // リスニング: 音声のあとにタイマー開始
+    if (hasTTS) {
+      $("listen-state").classList.remove("hidden");
+      speakDelayId = setTimeout(playCurrentScript, 450);
+    } else {
+      // 音声が使えない端末: スクリプトを表示して解けるように
+      qm.textContent = scriptText(q.script);
+      toast("🔇 この端末は音声が使えないので 文字で表示するよ");
+      startTimer();
+    }
+  } else {
+    if (q.speakOnShow) speakDelayId = setTimeout(() => speak(q.speakOnShow), 400);
+    startTimer();
+  }
+}
+
+let listenWatchdogId = null;
+function playCurrentScript() {
+  if (!R) return;
+  const q = R.qs[R.i];
+  if (!q || !q.script) return;
+  $("listen-state").classList.remove("hidden");
+  const done = () => {
+    clearTimeout(listenWatchdogId);
+    $("listen-state").classList.add("hidden");
+    if (R && !R.locked && !R.timerStarted) startTimer();
+  };
+  playScript(q.script, done);
+  // 端末によっては onend が発火しないことがあるため、読み上げ想定時間で必ずタイマーを開始する
+  const chars = q.script.reduce((s, [, t]) => s + t.length, 0);
+  clearTimeout(listenWatchdogId);
+  listenWatchdogId = setTimeout(done, Math.min(45000, 4000 + chars * 95));
 }
 
 /* --- タイマー --- */
 function startTimer() {
   stopTimer();
-  R.timeLeft = R.timeMax;
+  if (!R) return;
+  R.timerStarted = true;
+  R.timeLeft = R.curTime;
   const bar = $("timebar");
   bar.classList.remove("low");
   bar.style.width = "100%";
   timerId = setInterval(() => {
     R.timeLeft -= 0.1;
-    const pct = Math.max(0, (R.timeLeft / R.timeMax) * 100);
+    const pct = Math.max(0, (R.timeLeft / R.curTime) * 100);
     bar.style.width = pct + "%";
     bar.classList.toggle("low", pct < 30);
     if (R.timeLeft <= 0) {
       stopTimer();
-      answer(-1, null); // 時間切れ
+      answer(-1, null);
     }
   }, 100);
 }
@@ -661,20 +714,30 @@ function stopTimer() {
   timerId = null;
 }
 
+/* --- 苦手トラッキング --- */
+function markWrong(q) {
+  if (!q.srcId) return;
+  P.weak[q.srcId] = (P.weak[q.srcId] || 0) + 1;
+}
+function markRight(q) {
+  if (!q.srcId || !P.weak[q.srcId]) return;
+  P.weak[q.srcId]--;
+  if (P.weak[q.srcId] <= 0) delete P.weak[q.srcId];
+}
+
 /* --- 解答処理 --- */
 function answer(idx, ev) {
   if (!R || R.locked) return;
   R.locked = true;
   stopTimer();
   clearTimeout(speakDelayId);
-  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  cancelSpeech();
 
   const q = R.qs[R.i];
   const chosen = idx >= 0 ? q.choices[idx] : null;
   const ok = chosen === q.answer;
   q.result = ok;
 
-  // ボタンの見た目
   const btns = $("choices").children;
   for (let i = 0; i < btns.length; i++) {
     btns[i].disabled = true;
@@ -682,8 +745,8 @@ function answer(idx, ev) {
     else if (i === idx) btns[i].classList.add("wrong");
     else btns[i].classList.add("dim");
   }
+  $("listen-state").classList.add("hidden");
 
-  // 記録
   P.totalAnswered++;
   bumpToday();
 
@@ -692,14 +755,16 @@ function answer(idx, ev) {
     R.maxCombo = Math.max(R.maxCombo, R.combo);
     R.correct++;
     P.totalCorrect++;
-    P.correct[R.mode]++;
+    P.correct[q.modeKey] = (P.correct[q.modeKey] || 0) + 1;
+    markRight(q);
+
     const comboBonus = Math.min(R.combo - 1, 9) * 20;
-    const timeBonus = Math.round((Math.max(0, R.timeLeft) / R.timeMax) * 50);
+    const tl = R.timerStarted ? Math.max(0, R.timeLeft) : R.curTime;
+    const timeBonus = Math.round((tl / R.curTime) * 50);
     const pts = 100 + comboBonus + timeBonus;
     R.score += pts;
     $("score").textContent = R.score;
 
-    // エフェクト
     let x = innerWidth / 2, y = innerHeight / 2;
     if (ev && ev.target) {
       const r = ev.target.closest(".choice").getBoundingClientRect();
@@ -719,17 +784,17 @@ function answer(idx, ev) {
       cb.classList.add("bump");
     }
 
-    // 正解でも英語をきかせる
     if (q.speakOnReveal) setTimeout(() => speak(q.speakOnReveal), 350);
-    else if (q.mode === "vocab" && q.speakOnShow) setTimeout(() => speak(q.speakOnShow), 350);
+    else if (q.modeKey === "vocab" && q.speakOnShow) setTimeout(() => speak(q.speakOnShow), 350);
 
     showFeedback(true, q);
-    const wait = q.expl ? 2600 : (q.listen ? 2200 : 1400);
+    const wait = q.expl ? 2800 : q.listen ? 2400 : 1400;
     clearTimeout(autoNextId);
     autoNextId = setTimeout(nextQ, wait);
   } else {
     R.combo = 0;
     R.wrongs.push(q);
+    markWrong(q);
     sWrong();
     $("quiz-card").classList.add("shake");
     $("combo").classList.remove("show");
@@ -774,7 +839,7 @@ function quitRound() {
   stopTimer();
   clearTimeout(autoNextId);
   clearTimeout(speakDelayId);
-  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  cancelSpeech();
   R = null;
   renderHome();
   show("scr-home");
@@ -799,16 +864,16 @@ function bumpStreak() {
 }
 
 /* ==================== 結果画面 ==================== */
-
 function finishRound() {
   stopTimer();
+  cancelSpeech();
   const total = R.qs.length;
   const c = R.correct;
-  const rank = c >= total ? "S" : c >= 8 ? "A" : c >= 6 ? "B" : "C";
-  const starN = c >= 9 ? 3 : c >= 7 ? 2 : c >= 5 ? 1 : 0;
+  const ratio = c / total;
+  const rank = ratio >= 1 ? "S" : ratio >= 0.8 ? "A" : ratio >= 0.6 ? "B" : "C";
+  const starN = ratio >= 0.9 ? 3 : ratio >= 0.7 ? 2 : ratio >= 0.5 ? 1 : 0;
   const gainedXp = Math.max(5, Math.round(R.score / 10));
 
-  // プロフィール更新
   P.plays++;
   P.stars += starN;
   P.bestCombo = Math.max(P.bestCombo, R.maxCombo);
@@ -824,12 +889,10 @@ function finishRound() {
     levelsGained++;
   }
 
-  // 新バッジ判定
   const newBadges = BADGES.filter(b => !P.badges.includes(b.id) && b.chk(P));
   newBadges.forEach(b => P.badges.push(b.id));
   save();
 
-  // --- 表示 ---
   show("scr-result");
   const rk = $("rank");
   rk.textContent = rank;
@@ -839,14 +902,10 @@ function finishRound() {
   $("res-xp").textContent = gainedXp;
   $("res-score").textContent = "0";
 
-  // 星リセット
   document.querySelectorAll("#res-stars .star").forEach(s => s.classList.remove("on"));
-
-  // XPバー（最終状態を表示）
   $("res-xp-fill").style.width = "0%";
   $("res-xp-text").textContent = `Lv.${P.level}  ${P.xp} / ${xpNeed(P.level)} XP`;
 
-  // まちがい復習リスト
   const rvCard = $("review-card");
   const rvList = $("review-list");
   rvList.innerHTML = "";
@@ -854,16 +913,16 @@ function finishRound() {
     rvCard.classList.remove("hidden");
     R.wrongs.forEach(q => {
       const li = document.createElement("li");
-      const head = q.listen ? "🎧 きこえた英文" : q.main;
-      li.innerHTML = `${esc(head)}\n<span class="rv-ans">→ ${esc(q.reveal)}</span>` +
-        (q.expl ? `\n💡 ${esc(q.expl)}` : "");
+      const head = q.listen ? "🎧 きこえた英文" : q.main || q.sub;
+      li.innerHTML = `${esc(trunc(head, 90))}\n<span class="rv-ans">→ ${esc(q.reveal)}</span>` +
+        (q.expl ? `\n💡 ${esc(q.expl)}` : "") +
+        `\n<span class="rv-id">もんだいID: ${esc(q.srcId || "-")}</span>`;
       rvList.appendChild(li);
     });
   } else {
     rvCard.classList.add("hidden");
   }
 
-  // --- 演出シーケンス ---
   const finalScore = R.score;
   setTimeout(() => {
     rk.classList.add("show");
@@ -879,7 +938,6 @@ function finishRound() {
     }, 1000 + i * 420);
   }
 
-  // スコアカウントアップ
   setTimeout(() => {
     const dur = 900;
     const t0 = performance.now();
@@ -890,13 +948,10 @@ function finishRound() {
     })(t0);
   }, 800);
 
-  // XPバー
   setTimeout(() => {
-    $("res-xp-fill").style.width =
-      Math.min(100, (P.xp / xpNeed(P.level)) * 100) + "%";
+    $("res-xp-fill").style.width = Math.min(100, (P.xp / xpNeed(P.level)) * 100) + "%";
   }, 1600);
 
-  // レベルアップ演出
   if (levelsGained > 0) {
     setTimeout(() => {
       $("lv-new").textContent = P.level;
@@ -906,18 +961,34 @@ function finishRound() {
     }, 2300);
   }
 
-  // 新バッジトースト
   setTimeout(() => {
     newBadges.forEach(b => toast(`🏅 バッジゲット！ ${b.icon} ${b.name}`));
   }, levelsGained > 0 ? 3000 : 2200);
 
   const mode = R.mode;
-  $("btn-retry").onclick = () => { startRound(mode); };
+  $("btn-retry").onclick = () => startRound(mode);
   R = null;
 }
 
-/* ==================== バッジ画面 ==================== */
+/* ==================== ホーム ==================== */
+function renderHome() {
+  $("lv").textContent = P.level;
+  const need = xpNeed(P.level);
+  $("xp-fill").style.width = Math.min(100, (P.xp / need) * 100) + "%";
+  $("xp-text").textContent = `${P.xp} / ${need} XP`;
+  $("stat-stars").textContent = P.stars;
+  $("stat-streak").textContent = P.streak;
+  $("stat-badges").textContent = P.badges.length;
 
+  const t = todayStr();
+  const n = P.todayDate === t ? P.todayN : 0;
+  $("mission-fill").style.width = Math.min(100, (n / 30) * 100) + "%";
+  $("mission-text").textContent = n >= 30 ? "たっせい！🎉" : `${n} / 30`;
+
+  $("mascot-msg").textContent = pick(MASCOT_MSGS);
+}
+
+/* ==================== バッジ画面 ==================== */
 function renderBadges() {
   const grid = $("badge-grid");
   grid.innerHTML = "";
@@ -933,36 +1004,191 @@ function renderBadges() {
 }
 
 /* ==================== たんごちょう ==================== */
+const WB = { tab: "vocab", page: 0, q: "" };
+const WB_PAGE = 40;
+
+function wbList() {
+  if (WB.tab === "vocab") {
+    return D_VOCAB.map(v => ({ en: v.w, ja: v.ja, pos: v.pos, ex: null, speak: v.w }));
+  }
+  if (WB.tab === "idioms") {
+    return D_IDIOMS.map(v => ({ en: v.w, ja: v.ja, pos: "熟", ex: v.ex, speak: v.w.replace(/〜/g, "") }));
+  }
+  // にがてリスト
+  return Object.keys(P.weak)
+    .filter(id => REG[id])
+    .sort((a, b) => P.weak[b] - P.weak[a])
+    .map(id => {
+      const r = REG[id];
+      return { en: r.label, ja: r.info, pos: r.kind, ex: null, speak: r.speakText, ng: P.weak[id] };
+    });
+}
 
 function renderWords() {
+  const all = wbList();
+  const q = WB.q.trim().toLowerCase();
+  const list = q
+    ? all.filter(it => it.en.toLowerCase().includes(q) || (it.ja || "").toLowerCase().includes(q))
+    : all;
+  const pages = Math.max(1, Math.ceil(list.length / WB_PAGE));
+  if (WB.page >= pages) WB.page = pages - 1;
+  const slice = list.slice(WB.page * WB_PAGE, (WB.page + 1) * WB_PAGE);
+
   const grid = $("word-grid");
-  if (grid.childElementCount) return; // 一度だけ生成
-  VOCAB.forEach(([w, m]) => {
+  grid.innerHTML = "";
+  if (!slice.length) {
+    const p = document.createElement("p");
+    p.className = "page-note";
+    p.style.gridColumn = "1 / -1";
+    p.textContent = WB.tab === "weak" ? "💮 にがては ないよ！すごい！" : "みつからなかったよ…";
+    grid.appendChild(p);
+  }
+  slice.forEach(it => {
     const card = document.createElement("div");
     card.className = "word-card";
-    card.innerHTML = `<div class="wen">${esc(w)}</div><div class="wja">${esc(m)}</div>`;
+    card.innerHTML =
+      `<span class="wpos">${esc(it.pos || "")}</span>` +
+      `<div class="wen">${esc(it.en)}</div>` +
+      `<div class="wja">${esc(it.ja || "")}</div>` +
+      (it.ex ? `<div class="wex">${esc(it.ex)}</div>` : "") +
+      (it.ng ? `<span class="wng">まちがい ×${it.ng}</span>` : "");
     card.onclick = () => {
       ensureAudio();
       sClick();
       document.querySelectorAll(".word-card.speaking").forEach(c => c.classList.remove("speaking"));
       card.classList.add("speaking");
-      speak(w, 0.85, () => card.classList.remove("speaking"));
-      setTimeout(() => card.classList.remove("speaking"), 2500);
+      speak(it.speak, 0.85, () => card.classList.remove("speaking"));
+      setTimeout(() => card.classList.remove("speaking"), 4000);
     };
     grid.appendChild(card);
   });
+
+  $("pg-info").textContent = `${WB.page + 1} / ${pages}`;
+  $("pg-prev").disabled = WB.page <= 0;
+  $("pg-next").disabled = WB.page >= pages - 1;
+}
+
+/* ==================== めんせつ ==================== */
+let IV = null;
+
+function startInterview() {
+  ensureAudio();
+  sClick();
+  if (!D_INTERVIEW.length) { toast("じゅんびちゅう だよ"); return; }
+  IV = { set: pick(D_INTERVIEW), step: 0 };
+  show("scr-interview");
+  renderIv();
+}
+
+function renderIv() {
+  const s = IV.set;
+  const nq = s.qs.length;
+  $("iv-title").textContent = s.title;
+  $("iv-passage").textContent = s.passage;
+  const inst = $("iv-instruction");
+  const qEl = $("iv-question");
+  const mEl = $("iv-model");
+  const bL = $("btn-iv-listen");
+  const bM = $("btn-iv-model");
+  const bN = $("btn-iv-next");
+  qEl.classList.add("hidden");
+  mEl.classList.add("hidden");
+  bL.classList.add("hidden");
+  bM.classList.add("hidden");
+
+  if (IV.step === 0) {
+    $("iv-progress").textContent = "もくどく";
+    inst.classList.remove("hidden");
+    inst.textContent = "📖 まずは 20びょうくらい もくどく（だまって読む）してみよう。\nわからない単語が あっても だいじょうぶ！";
+    bN.textContent = "よめたよ ▶";
+  } else if (IV.step === 1) {
+    $("iv-progress").textContent = "おんどく";
+    inst.classList.remove("hidden");
+    inst.textContent = "🗣 こんどは こえに出して よんでみよう！\nほんばんでは タイトルから よむよ。🔊で おてほんが きけるよ。";
+    bL.classList.remove("hidden");
+    bL.textContent = "🔊 おてほんを きく";
+    bL.onclick = () => { sClick(); speak(s.title + ". " + s.passage, 0.82); };
+    bN.textContent = "よめたよ ▶";
+  } else {
+    const qi = IV.step - 2;
+    const qd = s.qs[qi];
+    $("iv-progress").textContent = `しつもん ${qi + 1} / ${nq}`;
+    inst.classList.remove("hidden");
+    inst.textContent = "🎤 しつもんに こえに出して 答えてみよう。答えたら モデルかいとうと くらべてね！";
+    qEl.classList.remove("hidden");
+    qEl.textContent = `No.${qi + 1}  ${qd.q}`;
+    bL.classList.remove("hidden");
+    bL.textContent = "🔊 しつもんを きく";
+    bL.onclick = () => { sClick(); speak(qd.q, 0.88); };
+    bM.classList.remove("hidden");
+    bM.onclick = () => {
+      sClick();
+      mEl.classList.remove("hidden");
+      mEl.innerHTML = `<b>モデルかいとう:</b>\n${esc(qd.model)}` + (qd.jhint ? `\n\n💡 ${esc(qd.jhint)}` : "");
+      speak(qd.model, 0.9);
+    };
+    bN.textContent = qi + 1 >= nq ? "おわる 🎉" : "つぎへ ▶";
+    setTimeout(() => speak(qd.q, 0.88), 500);
+  }
+
+  bN.onclick = () => {
+    sClick();
+    cancelSpeech();
+    if (IV.step - 2 + 1 >= nq && IV.step >= 2) {
+      finishInterview();
+    } else {
+      IV.step++;
+      renderIv();
+    }
+  };
+}
+
+function finishInterview() {
+  cancelSpeech();
+  const gained = 30;
+  P.xp += gained;
+  let leveled = false;
+  while (P.xp >= xpNeed(P.level)) {
+    P.xp -= xpNeed(P.level);
+    P.level++;
+    leveled = true;
+  }
+  P.plays++;
+  if (!P.modes.includes("interview")) P.modes.push("interview");
+  bumpStreak();
+  const newBadges = BADGES.filter(b => !P.badges.includes(b.id) && b.chk(P));
+  newBadges.forEach(b => P.badges.push(b.id));
+  save();
+  IV = null;
+  renderHome();
+  show("scr-home");
+  confetti(90);
+  sFanfare();
+  toast(`🎤 めんせつれんしゅう クリア！ 💎XP +${gained}`);
+  if (leveled) {
+    setTimeout(() => {
+      $("lv-new").textContent = P.level;
+      $("levelup").classList.remove("hidden");
+      sLevelUp();
+    }, 1200);
+  }
+  setTimeout(() => newBadges.forEach(b => toast(`🏅 バッジゲット！ ${b.icon} ${b.name}`)), 1800);
+}
+
+function quitInterview() {
+  cancelSpeech();
+  IV = null;
+  renderHome();
+  show("scr-home");
 }
 
 /* ==================== 初期化 ==================== */
-
 function decorate() {
-  // タイトル文字をバウンドさせる
   const title = $("title");
   const text = title.textContent;
   title.innerHTML = [...text].map((ch, i) =>
     `<span class="tchar" style="animation-delay:${i * 0.09}s">${esc(ch)}</span>`).join("");
 
-  // 背景のふわふわ
   const deco = $("deco");
   const emojis = ["☁️", "⭐", "🌈", "✨", "🎈", "☁️", "⭐", "🫧"];
   emojis.forEach((e, i) => {
@@ -977,21 +1203,59 @@ function decorate() {
   });
 }
 
+function goHome() {
+  sClick();
+  renderHome();
+  show("scr-home");
+}
+
 function init() {
+  regAll();
   decorate();
   renderHome();
 
-  document.querySelectorAll(".mode-btn").forEach(b => {
+  document.querySelectorAll(".mode-btn[data-mode]").forEach(b => {
+    b.addEventListener("click", () => startRound(b.dataset.mode));
+  });
+  document.querySelectorAll(".lpick-btn[data-mode]").forEach(b => {
     b.addEventListener("click", () => startRound(b.dataset.mode));
   });
 
+  $("btn-lpick").onclick = () => { ensureAudio(); sClick(); show("scr-lpick"); };
+  $("btn-lpick-back").onclick = goHome;
+  $("btn-interview").onclick = startInterview;
+  $("btn-iv-quit").onclick = () => { sClick(); quitInterview(); };
+
   $("btn-quit").onclick = () => { sClick(); quitRound(); };
-  $("btn-home").onclick = () => { sClick(); renderHome(); show("scr-home"); };
+  $("btn-home").onclick = goHome;
   $("btn-badges").onclick = () => { ensureAudio(); sClick(); renderBadges(); show("scr-badges"); };
-  $("btn-badges-back").onclick = () => { sClick(); renderHome(); show("scr-home"); };
-  $("btn-words").onclick = () => { ensureAudio(); sClick(); renderWords(); show("scr-words"); };
-  $("btn-words-back").onclick = () => { sClick(); renderHome(); show("scr-home"); };
+  $("btn-badges-back").onclick = goHome;
+  $("btn-words").onclick = () => {
+    ensureAudio(); sClick();
+    WB.page = 0;
+    renderWords();
+    show("scr-words");
+  };
+  $("btn-words-back").onclick = goHome;
   $("lv-ok").onclick = () => { sClick(); $("levelup").classList.add("hidden"); };
+
+  document.querySelectorAll(".tab-btn").forEach(b => {
+    b.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach(x => x.classList.remove("on"));
+      b.classList.add("on");
+      WB.tab = b.dataset.tab;
+      WB.page = 0;
+      sClick();
+      renderWords();
+    });
+  });
+  $("word-search").addEventListener("input", e => {
+    WB.q = e.target.value;
+    WB.page = 0;
+    renderWords();
+  });
+  $("pg-prev").onclick = () => { if (WB.page > 0) { WB.page--; sClick(); renderWords(); } };
+  $("pg-next").onclick = () => { WB.page++; sClick(); renderWords(); };
 
   $("mascot").addEventListener("click", () => {
     ensureAudio();
@@ -999,7 +1263,7 @@ function init() {
     const m = $("mascot");
     m.style.transform = "scale(1.25) rotate(10deg)";
     setTimeout(() => (m.style.transform = ""), 250);
-    $("mascot-msg").textContent = MASCOT_MSGS[Math.floor(Math.random() * MASCOT_MSGS.length)];
+    $("mascot-msg").textContent = pick(MASCOT_MSGS);
     burst(m.getBoundingClientRect().left + 30, m.getBoundingClientRect().top + 30, 12);
   });
 }

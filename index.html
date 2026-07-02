@@ -26,7 +26,7 @@
         <div class="lv-badge">Lv.<span id="lv">1</span></div>
         <div class="xp-wrap">
           <div class="xp-bar"><div id="xp-fill" class="xp-fill"></div></div>
-          <div class="xp-text" id="xp-text">0 / 150 XP</div>
+          <div class="xp-text" id="xp-text">0 / 100 XP</div>
         </div>
       </div>
       <div class="stat-row">
@@ -41,17 +41,44 @@
       </div>
     </div>
 
+    <h3 class="group-h">💪 トレーニング</h3>
     <div class="modes">
       <button class="mode-btn btn3d" data-mode="vocab"><span class="mi">📖</span>たんご<small>いみを あてよう</small></button>
+      <button class="mode-btn btn3d" data-mode="idioms"><span class="mi">🧩</span>じゅくご<small>きまり文句を マスター</small></button>
       <button class="mode-btn btn3d" data-mode="grammar"><span class="mi">✏️</span>ぶんぽう<small>あなうめ もんだい</small></button>
-      <button class="mode-btn btn3d" data-mode="convo"><span class="mi">💬</span>かいわ<small>へんじを えらぼう</small></button>
-      <button class="mode-btn btn3d" data-mode="listen"><span class="mi">🎧</span>リスニング<small>きいて こたえよう</small></button>
+      <button class="mode-btn btn3d" data-mode="review"><span class="mi">💊</span>ふくしゅう<small>にがてを たいじ！</small></button>
     </div>
 
-    <div class="subnav">
-      <button id="btn-words" class="btn3d small">📚 たんごちょう</button>
-      <button id="btn-badges" class="btn3d small">🏅 バッジずかん</button>
+    <h3 class="group-h">📋 ほんばん形式（英検と同じ形）</h3>
+    <div class="modes">
+      <button class="mode-btn btn3d" data-mode="tanbun"><span class="mi">📝</span>たんぶん<small>大問1の形式</small></button>
+      <button class="mode-btn btn3d" data-mode="kaiwabun"><span class="mi">💬</span>かいわぶん<small>大問2の形式</small></button>
+      <button class="mode-btn btn3d" data-mode="reading"><span class="mi">📚</span>ちょうぶん<small>よみとき ミニ</small></button>
+      <button class="mode-btn btn3d" id="btn-lpick"><span class="mi">🎧</span>リスニング<small>ほんばんと同じ3部</small></button>
     </div>
+
+    <h3 class="group-h">🌟 スペシャル</h3>
+    <div class="modes">
+      <button class="mode-btn btn3d" id="btn-interview"><span class="mi">🎤</span>めんせつ<small>二次試験の れんしゅう</small></button>
+      <button class="mode-btn btn3d soon" id="btn-mock" disabled><span class="mi">🏆</span>もぎけん<small>じゅんびちゅう…</small></button>
+      <button class="mode-btn btn3d" id="btn-words"><span class="mi">📒</span>たんごちょう<small>はつおんも きける</small></button>
+      <button class="mode-btn btn3d" id="btn-badges"><span class="mi">🏅</span>バッジずかん<small>あつめよう</small></button>
+    </div>
+
+    <p class="credit">このアプリの問題は英検の過去問ではなく、公式の出題形式・レベルを参考に作られたオリジナル問題です。</p>
+  </section>
+
+  <!-- リスニング選択画面 -->
+  <section id="scr-lpick" class="screen hidden">
+    <h2 class="page-title">🎧 リスニング</h2>
+    <p class="page-note">ほんばんの英検と同じ3部構成だよ。音が出るよ！</p>
+    <div class="lpick-list">
+      <button class="lpick-btn btn3d" data-mode="listen1">第1部<small>かいわの つづきの へんじを えらぶ（3たく）</small></button>
+      <button class="lpick-btn btn3d" data-mode="listen2">第2部<small>かいわを きいて しつもんに こたえる（4たく）</small></button>
+      <button class="lpick-btn btn3d" data-mode="listen3">第3部<small>おはなしを きいて しつもんに こたえる（4たく）</small></button>
+      <button class="lpick-btn btn3d mixy" data-mode="listenmix">ミックス<small>ぜんぶ まぜて しゅつだい！</small></button>
+    </div>
+    <div class="res-btns"><button id="btn-lpick-back" class="btn3d alt">🏠 ホームへ</button></div>
   </section>
 
   <!-- クイズ画面 -->
@@ -64,9 +91,14 @@
     <div class="dots" id="dots"></div>
     <div class="timebar-wrap"><div id="timebar"></div></div>
 
+    <div class="card passage-card hidden" id="passage-card">
+      <div class="passage" id="passage"></div>
+    </div>
+
     <div class="card quiz-card" id="quiz-card">
       <div class="combo" id="combo"></div>
       <div class="q-sub" id="q-sub"></div>
+      <div class="listen-state hidden" id="listen-state">🎧 よくきいてね…</div>
       <div class="q-main" id="q-main"></div>
       <button id="btn-replay" class="btn3d replay hidden">🔊 もういちど きく</button>
       <div class="choices" id="choices"></div>
@@ -117,10 +149,44 @@
 
   <!-- たんごちょう画面 -->
   <section id="scr-words" class="screen hidden">
-    <h2 class="page-title">📚 たんごちょう</h2>
+    <h2 class="page-title">📒 たんごちょう</h2>
+    <div class="tabs">
+      <button class="tab-btn on" data-tab="vocab">たんご</button>
+      <button class="tab-btn" data-tab="idioms">じゅくご</button>
+      <button class="tab-btn" data-tab="weak">にがて 💊</button>
+    </div>
+    <div class="search-row">
+      <input id="word-search" type="search" placeholder="🔍 さがす（えいご・にほんご）">
+    </div>
     <p class="page-note">カードをタップすると はつおんが きけるよ！🔊</p>
     <div class="word-grid" id="word-grid"></div>
+    <div class="pager">
+      <button id="pg-prev" class="chip">◀ まえ</button>
+      <span id="pg-info">1 / 1</span>
+      <button id="pg-next" class="chip">つぎ ▶</button>
+    </div>
     <div class="res-btns"><button id="btn-words-back" class="btn3d alt">🏠 ホームへ</button></div>
+  </section>
+
+  <!-- めんせつ画面 -->
+  <section id="scr-interview" class="screen hidden">
+    <div class="quiz-top">
+      <button id="btn-iv-quit" class="chip">← やめる</button>
+      <div class="qnum" id="iv-progress"></div>
+      <div></div>
+    </div>
+    <div class="card iv-card">
+      <h3 id="iv-title"></h3>
+      <div class="passage iv-passage" id="iv-passage"></div>
+      <div class="iv-instruction" id="iv-instruction"></div>
+      <div class="iv-question hidden" id="iv-question"></div>
+      <div class="iv-model hidden" id="iv-model"></div>
+      <div class="iv-btns">
+        <button id="btn-iv-listen" class="btn3d replay hidden">🔊</button>
+        <button id="btn-iv-model" class="btn3d alt hidden">💡 モデルかいとうを 見る</button>
+        <button id="btn-iv-next" class="btn3d next">つぎへ ▶</button>
+      </div>
+    </div>
   </section>
 
 </main>
@@ -137,6 +203,14 @@
 
 <div id="toast-area"></div>
 
+<script src="data/vocab.js"></script>
+<script src="data/idioms.js"></script>
+<script src="data/grammar.js"></script>
+<script src="data/tanbun.js"></script>
+<script src="data/kaiwabun.js"></script>
+<script src="data/listening.js"></script>
+<script src="data/reading.js"></script>
+<script src="data/interview.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
