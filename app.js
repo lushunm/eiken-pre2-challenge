@@ -22,8 +22,8 @@ const MODES = {
   kaiwabun:  { name: "かいわぶん（大問2形式）", n: 8,  time: 45 },
   reading:   { name: "ちょうぶん よみとき",     n: 2,  time: 90 },  // n = パッセージ数
   listen1:   { name: "リスニング第1部",        n: 10, time: 20 },
-  listen2:   { name: "リスニング第2部",        n: 8,  time: 25 },
-  listen3:   { name: "リスニング第3部",        n: 8,  time: 25 },
+  listen2:   { name: "リスニング第2部",        n: 10, time: 25 },
+  listen3:   { name: "リスニング第3部",        n: 10, time: 25 },
   listenmix: { name: "リスニングミックス",     n: 10, time: 25 },
   review:    { name: "ふくしゅう",             n: 10, time: 40 },
 };
