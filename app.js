@@ -26,6 +26,12 @@ const MODES = {
   listen3:   { name: "リスニング第3部",        n: 10, time: 25 },
   listenmix: { name: "リスニングミックス",     n: 10, time: 25 },
   review:    { name: "ふくしゅう",             n: 10, time: 40 },
+  mock:      { name: "もぎけん（本番ミニ）",   n: 30, time: 0 },
+};
+
+const MOCK_SECTION_NAMES = {
+  tanbun: "📝 大問1: たんぶん", kaiwabun: "💬 大問2: かいわぶん",
+  listen1: "🎧 リスニング第1部", listen2: "🎧 リスニング第2部", listen3: "🎧 リスニング第3部",
 };
 
 const MASCOT_MSGS = [
@@ -78,6 +84,7 @@ const DEFAULTS = {
   streak: 0, lastDay: "", todayDate: "", todayN: 0,
   missionDone: "",
   weak: {},
+  mockBest: 0, ivCount: 0,
 };
 CORRECT_KEYS.forEach(k => (DEFAULTS.correct[k] = 0));
 
@@ -128,6 +135,10 @@ const BADGES = [
   { id: "level10",   icon: "🌟", name: "レベル10",         desc: "レベル10にとうたつ", chk: p => p.level >= 10 },
   { id: "star30",    icon: "✨", name: "スターコレクター", desc: "ほしを30こあつめた", chk: p => p.stars >= 30 },
   { id: "streak3",   icon: "📅", name: "まいにちコツコツ", desc: "3日れんぞくであそんだ", chk: p => p.streak >= 3 },
+  { id: "read30",    icon: "📖", name: "よみときはかせ",   desc: "ちょうぶん・たんぶんで30もんせいかい", chk: p => (p.correct.reading || 0) + (p.correct.tanbun || 0) >= 30 },
+  { id: "mock1",     icon: "🎖", name: "もぎけんデビュー", desc: "もぎけんに ちょうせんした", chk: p => p.modes.includes("mock") },
+  { id: "mockA",     icon: "🏆", name: "ごうかくレベル！", desc: "もぎけんで 8わり いじょう せいかい", chk: p => (p.mockBest || 0) >= 0.8 },
+  { id: "iv5",       icon: "🎤", name: "めんせつのたつじん", desc: "めんせつれんしゅうを 5回 クリア", chk: p => (p.ivCount || 0) >= 5 },
 ];
 
 /* ==================== サウンド（Web Audio） ==================== */
@@ -543,6 +554,15 @@ function buildRound(mode) {
         return q;
       });
     }
+    case "mock":
+      // 本番の縮小セット: 大問1×10 → 大問2×5 → リスニング第1部×5 → 第2部×5 → 第3部×5
+      return [].concat(
+        sample(D_TANBUN, 10).map(buildTanbunQ),
+        sample(D_KAIWABUN, 5).map(buildKaiwabunQ),
+        sample(D_LISTEN1, 5).map(buildListen1Q),
+        sample(D_LISTEN2, 5).map(buildListen2Q),
+        sample(D_LISTEN3, 5).map(buildListen3Q)
+      );
   }
   return [];
 }
@@ -585,6 +605,11 @@ function renderDots() {
 
 function renderQuestion() {
   const q = R.qs[R.i];
+  // もぎけん: セクションが変わったらお知らせ
+  if (R.mode === "mock" && (R.i === 0 || q.modeKey !== R.qs[R.i - 1].modeKey)) {
+    const label = MOCK_SECTION_NAMES[q.modeKey];
+    if (label) toast(label + " スタート！");
+  }
   R.locked = false;
   R.timerStarted = false;
   R.curTime = q.time;
@@ -882,6 +907,7 @@ function finishRound() {
   P.bestCombo = Math.max(P.bestCombo, R.maxCombo);
   if (c >= total) P.perfects++;
   if (!P.modes.includes(R.mode)) P.modes.push(R.mode);
+  if (R.mode === "mock") P.mockBest = Math.max(P.mockBest || 0, ratio);
   bumpStreak();
 
   let levelsGained = 0;
@@ -981,7 +1007,7 @@ function renderHome() {
   $("xp-text").textContent = `${P.xp} / ${need} XP`;
   $("stat-stars").textContent = P.stars;
   $("stat-streak").textContent = P.streak;
-  $("stat-badges").textContent = P.badges.length;
+  $("stat-badges").textContent = P.badges.length + "/" + BADGES.length;
 
   const t = todayStr();
   const n = P.todayDate === t ? P.todayN : 0;
@@ -1157,6 +1183,7 @@ function finishInterview() {
     leveled = true;
   }
   P.plays++;
+  P.ivCount = (P.ivCount || 0) + 1;
   if (!P.modes.includes("interview")) P.modes.push("interview");
   bumpStreak();
   const newBadges = BADGES.filter(b => !P.badges.includes(b.id) && b.chk(P));
@@ -1225,6 +1252,7 @@ function init() {
   });
 
   $("btn-lpick").onclick = () => { ensureAudio(); sClick(); show("scr-lpick"); };
+  $("btn-mock").onclick = () => startRound("mock");
   $("btn-lpick-back").onclick = goHome;
   $("btn-interview").onclick = startInterview;
   $("btn-iv-quit").onclick = () => { sClick(); quitInterview(); };
