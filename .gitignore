@@ -1,2 +1,5 @@
 # ローカル動作確認用サーバー（公開不要）
 serve.ps1
+
+# ローカル専用（Claude Preview のサーバー定義・絶対パスを含む）
+.claude/launch.json

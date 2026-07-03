@@ -1,0 +1,19 @@
+name: data-check
+
+on:
+  push:
+    paths: ['data/**', 'app.js', 'index.html', 'scripts/**', '.github/workflows/check-data.yml']
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JS 構文チェック
+        run: |
+          set -e
+          for f in data/*.js app.js; do node --check "$f"; done
+      - name: ID 重複チェック
+        shell: pwsh
+        run: ./scripts/check-data.ps1 -SkipDiff
