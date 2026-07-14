@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>えいけん準2級チャレンジ！</title>
 <link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4fb8ff">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 </head>
 <body>
 <canvas id="fx"></canvas>
@@ -66,6 +71,8 @@
       <button class="mode-btn btn3d" id="btn-badges"><span class="mi">🏅</span>バッジずかん<small>あつめよう</small></button>
       <button class="mode-btn btn3d" id="btn-calendar"><span class="mi">📅</span>カレンダー<small>がんばりを ふりかえろう</small></button>
     </div>
+
+    <button id="btn-install" class="btn3d small install-btn hidden">📲 アプリとして インストール</button>
 
     <p class="credit">このアプリの問題は英検の過去問ではなく、公式の出題形式・レベルを参考に作られたオリジナル問題です。<br>
       語彙の選定には『CEFR-J Wordlist Version 1.5』（東京外国語大学 投野由紀夫研究室）を利用しています。</p>

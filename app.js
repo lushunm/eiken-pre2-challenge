@@ -1448,6 +1448,35 @@ function init() {
     $("mascot-msg").textContent = pick(MASCOT_MSGS);
     burst(m.getBoundingClientRect().left + 30, m.getBoundingClientRect().top + 30, 12);
   });
+
+  initPwa();
+}
+
+/* ==================== PWA（オフライン対応・インストール） ==================== */
+let deferredInstall = null;
+
+function initPwa() {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch(() => { /* file://等では無視 */ });
+  }
+  window.addEventListener("beforeinstallprompt", e => {
+    e.preventDefault();
+    deferredInstall = e;
+    $("btn-install").classList.remove("hidden");
+  });
+  $("btn-install").onclick = async () => {
+    if (!deferredInstall) return;
+    sClick();
+    deferredInstall.prompt();
+    await deferredInstall.userChoice;
+    deferredInstall = null;
+    $("btn-install").classList.add("hidden");
+  };
+  window.addEventListener("appinstalled", () => {
+    deferredInstall = null;
+    $("btn-install").classList.add("hidden");
+    toast("📲 インストール かんりょう！ホームがめんから あそべるよ");
+  });
 }
 
 init();

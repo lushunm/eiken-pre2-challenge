@@ -1,0 +1,17 @@
+{
+  "name": "えいけん準2級チャレンジ！",
+  "short_name": "準2チャレンジ",
+  "description": "小学生向けの英検準2級学習ゲーム。単語・文法・リスニング・もぎしけん・めんせつ練習をゲーム感覚で。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#aee9ff",
+  "theme_color": "#4fb8ff",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

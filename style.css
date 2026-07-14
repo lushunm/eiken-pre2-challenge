@@ -181,6 +181,12 @@ body {
   line-height: 1.6;
   margin-top: 22px;
 }
+.install-btn {
+  display: block;
+  margin: 18px auto 0;
+  background: linear-gradient(135deg, #63d3b8, #3dbb9d);
+  box-shadow: 0 5px 0 #2a8a73;
+}
 
 /* ===== 3Dボタン共通 ===== */
 .btn3d {

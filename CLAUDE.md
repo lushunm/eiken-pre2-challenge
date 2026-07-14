@@ -17,6 +17,14 @@
 
 - 小学生向け: 和訳・解説の漢字にはふりがなを付けるかひらがなにする（例:「能力（のうりょく）」）。
 
+## PWA（オフライン・インストール対応）
+
+- `manifest.json` + `sw.js`（Service Worker、network-first）+ `icons/`（`scripts/make-icons.ps1` で再生成可）。
+- **新しい data パートファイルを追加したら `sw.js` の `CORE` 配列にも追加する**
+  （追加し忘れてもオンラインで一度開けばランタイムキャッシュされるが、初回オフラインに含めるため）。
+- ローカル検証時は localhost が secure context なので SW が動く。SW は network-first のため
+  開発中に古いキャッシュが返る心配はほぼ無い。
+
 ## デプロイ
 
 - main に push → GitHub Pages に 1〜2 分で自動反映（リポジトリ: lushunm/eiken-pre2-challenge）。
