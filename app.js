@@ -26,7 +26,7 @@ const MODES = {
   listen3:   { name: "リスニング第3部",        n: 10, time: 25 },
   listenmix: { name: "リスニングミックス",     n: 10, time: 25 },
   review:    { name: "ふくしゅう",             n: 10, time: 40 },
-  mock:      { name: "もぎけん（本番ミニ）",   n: 30, time: 0 },
+  mock:      { name: "もぎしけん（本番ミニ）",   n: 30, time: 0 },
 };
 
 const MOCK_SECTION_NAMES = {
@@ -136,8 +136,8 @@ const BADGES = [
   { id: "star30",    icon: "✨", name: "スターコレクター", desc: "ほしを30こあつめた", chk: p => p.stars >= 30 },
   { id: "streak3",   icon: "📅", name: "まいにちコツコツ", desc: "3日れんぞくであそんだ", chk: p => p.streak >= 3 },
   { id: "read30",    icon: "📖", name: "よみときはかせ",   desc: "ちょうぶん・たんぶんで30もんせいかい", chk: p => (p.correct.reading || 0) + (p.correct.tanbun || 0) >= 30 },
-  { id: "mock1",     icon: "🎖", name: "もぎけんデビュー", desc: "もぎけんに ちょうせんした", chk: p => p.modes.includes("mock") },
-  { id: "mockA",     icon: "🏆", name: "ごうかくレベル！", desc: "もぎけんで 8わり いじょう せいかい", chk: p => (p.mockBest || 0) >= 0.8 },
+  { id: "mock1",     icon: "🎖", name: "もぎしけんデビュー", desc: "もぎしけんに ちょうせんした", chk: p => p.modes.includes("mock") },
+  { id: "mockA",     icon: "🏆", name: "ごうかくレベル！", desc: "もぎしけんで 8わり いじょう せいかい", chk: p => (p.mockBest || 0) >= 0.8 },
   { id: "iv5",       icon: "🎤", name: "めんせつのたつじん", desc: "めんせつれんしゅうを 5回 クリア", chk: p => (p.ivCount || 0) >= 5 },
 ];
 
@@ -605,7 +605,7 @@ function renderDots() {
 
 function renderQuestion() {
   const q = R.qs[R.i];
-  // もぎけん: セクションが変わったらお知らせ
+  // もぎしけん: セクションが変わったらお知らせ
   if (R.mode === "mock" && (R.i === 0 || q.modeKey !== R.qs[R.i - 1].modeKey)) {
     const label = MOCK_SECTION_NAMES[q.modeKey];
     if (label) toast(label + " スタート！");
