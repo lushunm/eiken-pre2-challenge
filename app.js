@@ -85,6 +85,7 @@ const DEFAULTS = {
   missionDone: "",
   weak: {},
   mockBest: 0, ivCount: 0,
+  calendar: {}, longestStreak: 0,
 };
 CORRECT_KEYS.forEach(k => (DEFAULTS.correct[k] = 0));
 
@@ -107,6 +108,8 @@ function load() {
     }
     p.correct = c;
     p.weak = d.weak || {};
+    p.calendar = d.calendar || {};
+    p.longestStreak = Math.max(d.longestStreak || 0, d.streak || 0);
     p.v = 2;
     return p;
   } catch (e) {
@@ -119,6 +122,32 @@ function save() {
 
 const xpNeed = level => 100 + (level - 1) * 50;
 const sumListen = p => (p.correct.listen1 || 0) + (p.correct.listen2 || 0) + (p.correct.listen3 || 0);
+
+/* ==================== がんばりカレンダー ==================== */
+// その日の回答数からスタンプの種類を判定（表示時に算出。しきい値は将来変更してもマイグレーション不要）
+function stampTier(day) {
+  if (!day || !day.n) return null;
+  if (day.n >= 30) return "gold";   // 🎯 きょうのミッション達成級
+  if (day.n >= 10) return "silver"; // ⭐
+  return "bronze";                  // 🌱
+}
+const STAMP_EMOJI = { bronze: "🌱", silver: "⭐", gold: "🎯" };
+
+function calDay(dateStr) {
+  if (!P.calendar[dateStr]) {
+    P.calendar[dateStr] = { n: 0, correct: 0, stars: 0, perfect: false, modes: [], badges: [] };
+  }
+  return P.calendar[dateStr];
+}
+
+// ラウンド/めんせつ完了時に、その日の記録へモード・ほし・パーフェクト・新規バッジを反映
+function stampDay({ mode, starN = 0, perfect = false, newBadgeIds = [] }) {
+  const day = calDay(todayStr());
+  if (mode && !day.modes.includes(mode)) day.modes.push(mode);
+  day.stars += starN;
+  if (perfect) day.perfect = true;
+  newBadgeIds.forEach(id => { if (!day.badges.includes(id)) day.badges.push(id); });
+}
 
 /* ==================== バッジ ==================== */
 const CORE_MODES = ["vocab", "idioms", "grammar", "tanbun", "kaiwabun", "reading", "listen1", "listen2", "listen3", "listenmix"];
@@ -139,6 +168,9 @@ const BADGES = [
   { id: "mock1",     icon: "🎖", name: "もぎしけんデビュー", desc: "もぎしけんに ちょうせんした", chk: p => p.modes.includes("mock") },
   { id: "mockA",     icon: "🏆", name: "ごうかくレベル！", desc: "もぎしけんで 8わり いじょう せいかい", chk: p => (p.mockBest || 0) >= 0.8 },
   { id: "iv5",       icon: "🎤", name: "めんせつのたつじん", desc: "めんせつれんしゅうを 5回 クリア", chk: p => (p.ivCount || 0) >= 5 },
+  { id: "streak7",     icon: "🔥", name: "1週間コツコツ",     desc: "7日れんぞくであそんだ", chk: p => p.streak >= 7 },
+  { id: "streak30",    icon: "🎆", name: "1か月コツコツ",     desc: "30日れんぞくであそんだ", chk: p => p.streak >= 30 },
+  { id: "goldstamp10", icon: "🏵", name: "ゴールドスタンプ", desc: "🎯スタンプを10日ぶんためた", chk: p => Object.values(p.calendar || {}).filter(d => d.n >= 30).length >= 10 },
 ];
 
 /* ==================== サウンド（Web Audio） ==================== */
@@ -776,7 +808,7 @@ function answer(idx, ev) {
   $("listen-state").classList.add("hidden");
 
   P.totalAnswered++;
-  bumpToday();
+  bumpToday(ok);
 
   if (ok) {
     R.combo++;
@@ -874,10 +906,13 @@ function quitRound() {
 }
 
 /* --- きょうのぶん・れんぞく --- */
-function bumpToday() {
+function bumpToday(ok) {
   const t = todayStr();
   if (P.todayDate !== t) { P.todayDate = t; P.todayN = 0; }
   P.todayN++;
+  const day = calDay(t);
+  day.n++;
+  if (ok) day.correct++;
   if (P.todayN === 30 && P.missionDone !== t) {
     P.missionDone = t;
     P.stars += 3;
@@ -889,6 +924,7 @@ function bumpStreak() {
   if (P.lastDay === t) return;
   P.streak = P.lastDay === todayStr(-1) ? (P.streak || 0) + 1 : 1;
   P.lastDay = t;
+  P.longestStreak = Math.max(P.longestStreak || 0, P.streak);
 }
 
 /* ==================== 結果画面 ==================== */
@@ -920,6 +956,7 @@ function finishRound() {
 
   const newBadges = BADGES.filter(b => !P.badges.includes(b.id) && b.chk(P));
   newBadges.forEach(b => P.badges.push(b.id));
+  stampDay({ mode: R.mode, starN, perfect: c >= total, newBadgeIds: newBadges.map(b => b.id) });
   save();
 
   show("scr-result");
@@ -1008,6 +1045,8 @@ function renderHome() {
   $("stat-stars").textContent = P.stars;
   $("stat-streak").textContent = P.streak;
   $("stat-badges").textContent = P.badges.length + "/" + BADGES.length;
+  const longestEl = $("stat-longest");
+  if (longestEl) longestEl.textContent = P.longestStreak || 0;
 
   const t = todayStr();
   const n = P.todayDate === t ? P.todayN : 0;
@@ -1030,6 +1069,108 @@ function renderBadges() {
       <div class="bdesc">${esc(b.desc)}</div>`;
     grid.appendChild(div);
   });
+}
+
+/* ==================== がんばりカレンダー ==================== */
+const MODE_LABELS = {
+  vocab: "たんご", idioms: "じゅくご", grammar: "ぶんぽう", tanbun: "たんぶん", kaiwabun: "かいわぶん",
+  reading: "ちょうぶん", listen1: "リスニング第1部", listen2: "リスニング第2部", listen3: "リスニング第3部",
+  listenmix: "リスニングMIX", review: "ふくしゅう", mock: "もぎしけん", interview: "めんせつ",
+};
+
+const CAL = { year: 0, month: 0, selected: null }; // month: 0-11
+
+function calKey(y, m, d) { return `${y}-${m + 1}-${d}`; }
+
+function calGoToday() {
+  const now = new Date();
+  CAL.year = now.getFullYear();
+  CAL.month = now.getMonth();
+  CAL.selected = null;
+}
+
+function renderCalendar() {
+  if (!CAL.year) calGoToday();
+  const now = new Date();
+  $("cal-streak").textContent = P.streak;
+  $("cal-longest").textContent = P.longestStreak || 0;
+  $("cal-info").textContent = `${CAL.year}年 ${CAL.month + 1}月`;
+
+  const isCurrentMonth = CAL.year === now.getFullYear() && CAL.month === now.getMonth();
+  $("cal-next").disabled = isCurrentMonth;
+
+  const first = new Date(CAL.year, CAL.month, 1);
+  const daysInMonth = new Date(CAL.year, CAL.month + 1, 0).getDate();
+  const startDow = first.getDay();
+
+  const grid = $("cal-grid");
+  grid.innerHTML = "";
+  ["日", "月", "火", "水", "木", "金", "土"].forEach(d => {
+    const el = document.createElement("div");
+    el.className = "cal-dow";
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+  for (let i = 0; i < startDow; i++) {
+    const el = document.createElement("div");
+    el.className = "cal-cell empty";
+    grid.appendChild(el);
+  }
+  const todayKey = todayStr();
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = calKey(CAL.year, CAL.month, d);
+    const day = P.calendar[key];
+    const tier = stampTier(day);
+    const cell = document.createElement("div");
+    cell.className = "cal-cell" + (key === todayKey ? " today" : "") + (tier ? " has-stamp" : "");
+    cell.dataset.key = key;
+    cell.innerHTML = `<span class="cal-date">${d}</span>` +
+      (tier ? `<span class="cal-stamp">${STAMP_EMOJI[tier]}</span>` : "") +
+      (day && day.perfect ? `<span class="cal-dot cal-dot-perfect">💯</span>` : "") +
+      (day && day.badges.length ? `<span class="cal-dot cal-dot-badge">🏅</span>` : "");
+    cell.onclick = () => { sClick(); selectCalDay(key); };
+    grid.appendChild(cell);
+  }
+  if (CAL.selected) selectCalDay(CAL.selected);
+  else $("cal-detail").classList.add("hidden");
+}
+
+function selectCalDay(key) {
+  CAL.selected = key;
+  document.querySelectorAll(".cal-cell[data-key]").forEach(c => c.classList.toggle("selected", c.dataset.key === key));
+  const day = P.calendar[key];
+  const det = $("cal-detail");
+  det.classList.remove("hidden");
+  const [, m, d] = key.split("-").map(Number);
+  if (!day || !day.n) {
+    det.innerHTML = `<b>${m}月${d}日</b><br>この日は おやすみ だったよ。`;
+    return;
+  }
+  const modeNames = day.modes.map(mk => MODE_LABELS[mk] || mk).join("・") || "-";
+  const badgeNames = day.badges.map(id => {
+    const b = BADGES.find(x => x.id === id);
+    return b ? `${b.icon}${b.name}` : id;
+  }).join("、");
+  det.innerHTML = `<b>${m}月${d}日</b><br>` +
+    `もんだい ${day.n}もん（せいかい ${day.correct}）<br>` +
+    `あそんだモード: ${esc(modeNames)}` +
+    (day.perfect ? `<br>💯 パーフェクトラウンドあり！` : "") +
+    (day.badges.length ? `<br>🏅 かくとくバッジ: ${esc(badgeNames)}` : "");
+}
+
+function calPrevMonth() {
+  CAL.month--;
+  if (CAL.month < 0) { CAL.month = 11; CAL.year--; }
+  CAL.selected = null;
+  renderCalendar();
+}
+function calNextMonth() {
+  const now = new Date();
+  if (CAL.year === now.getFullYear() && CAL.month === now.getMonth()) return;
+  CAL.month++;
+  if (CAL.month > 11) { CAL.month = 0; CAL.year++; }
+  CAL.selected = null;
+  renderCalendar();
 }
 
 /* ==================== たんごちょう ==================== */
@@ -1188,6 +1329,7 @@ function finishInterview() {
   bumpStreak();
   const newBadges = BADGES.filter(b => !P.badges.includes(b.id) && b.chk(P));
   newBadges.forEach(b => P.badges.push(b.id));
+  stampDay({ mode: "interview", newBadgeIds: newBadges.map(b => b.id) });
   save();
   IV = null;
   renderHome();
@@ -1268,6 +1410,15 @@ function init() {
     show("scr-words");
   };
   $("btn-words-back").onclick = goHome;
+  $("btn-calendar").onclick = () => {
+    ensureAudio(); sClick();
+    calGoToday();
+    renderCalendar();
+    show("scr-calendar");
+  };
+  $("btn-calendar-back").onclick = goHome;
+  $("cal-prev").onclick = () => { sClick(); calPrevMonth(); };
+  $("cal-next").onclick = () => { sClick(); calNextMonth(); };
   $("lv-ok").onclick = () => { sClick(); $("levelup").classList.add("hidden"); };
 
   document.querySelectorAll(".tab-btn").forEach(b => {

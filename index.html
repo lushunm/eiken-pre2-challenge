@@ -33,6 +33,7 @@
         <span>⭐ ほし <b id="stat-stars">0</b></span>
         <span>🔥 れんぞく <b id="stat-streak">0</b>日</span>
         <span>🏅 バッジ <b id="stat-badges">0</b></span>
+        <span>🏆 さいこう <b id="stat-longest">0</b>日</span>
       </div>
       <div class="mission">
         <div class="mission-label">🎯 きょうのミッション：30もんにチャレンジ！</div>
@@ -63,6 +64,7 @@
       <button class="mode-btn btn3d" id="btn-mock"><span class="mi">🏆</span>もぎしけん<small>本番ミニ 30もん！</small></button>
       <button class="mode-btn btn3d" id="btn-words"><span class="mi">📒</span>たんごちょう<small>はつおんも きける</small></button>
       <button class="mode-btn btn3d" id="btn-badges"><span class="mi">🏅</span>バッジずかん<small>あつめよう</small></button>
+      <button class="mode-btn btn3d" id="btn-calendar"><span class="mi">📅</span>カレンダー<small>がんばりを ふりかえろう</small></button>
     </div>
 
     <p class="credit">このアプリの問題は英検の過去問ではなく、公式の出題形式・レベルを参考に作られたオリジナル問題です。<br>
@@ -146,6 +148,31 @@
     <h2 class="page-title">🏅 バッジずかん</h2>
     <div class="badge-grid" id="badge-grid"></div>
     <div class="res-btns"><button id="btn-badges-back" class="btn3d alt">🏠 ホームへ</button></div>
+  </section>
+
+  <!-- がんばりカレンダー画面 -->
+  <section id="scr-calendar" class="screen hidden">
+    <h2 class="page-title">📅 がんばりカレンダー</h2>
+    <div class="card cal-summary">
+      <span>🔥 いまの れんぞく <b id="cal-streak">0</b>日</span>
+      <span>🏆 じこベスト <b id="cal-longest">0</b>日</span>
+    </div>
+    <div class="pager">
+      <button id="cal-prev" class="chip">◀ まえの月</button>
+      <span id="cal-info">2026年 1月</span>
+      <button id="cal-next" class="chip">つぎの月 ▶</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="card cal-detail hidden" id="cal-detail"></div>
+    <div class="card cal-legend">
+      <div><span class="cal-stamp">🌱</span> すこし がんばった（1〜9もん）</div>
+      <div><span class="cal-stamp">⭐</span> よく がんばった（10〜29もん）</div>
+      <div><span class="cal-stamp">🎯</span> ミッションたっせい（30もん いじょう）</div>
+      <div><span class="cal-dot">💯</span> パーフェクトラウンドが あった日</div>
+      <div><span class="cal-dot">🏅</span> バッジを かくとくした日</div>
+    </div>
+    <p class="page-note">このカレンダーは きろくを 始めた日からの記録だよ。</p>
+    <div class="res-btns"><button id="btn-calendar-back" class="btn3d alt">🏠 ホームへ</button></div>
   </section>
 
   <!-- たんごちょう画面 -->

@@ -640,7 +640,67 @@ body {
   gap: 14px;
   margin-bottom: 14px;
 }
-#pg-info { color: #fff; font-weight: bold; text-shadow: 0 2px 0 rgba(80,60,160,.3); }
+#pg-info, #cal-info { color: #fff; font-weight: bold; text-shadow: 0 2px 0 rgba(80,60,160,.3); }
+
+/* ===== がんばりカレンダー ===== */
+.cal-summary {
+  display: flex;
+  justify-content: space-around;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 12px 10px;
+}
+.cal-summary b { font-size: 18px; color: var(--pink); }
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 14px;
+}
+.cal-dow {
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, .85);
+  text-shadow: 0 1px 0 rgba(80, 60, 160, .25);
+  padding-bottom: 4px;
+}
+.cal-cell {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: rgba(255, 255, 255, .55);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform .1s;
+}
+.cal-cell.empty { background: transparent; cursor: default; }
+.cal-cell:not(.empty):active { transform: scale(.92); }
+.cal-cell .cal-date { font-size: 11px; font-weight: bold; color: #6a66a0; }
+.cal-cell.has-stamp { background: #fff; box-shadow: 0 3px 8px rgba(90, 80, 180, .18); }
+.cal-cell.has-stamp .cal-date { color: var(--ink); }
+.cal-cell .cal-stamp { font-size: 17px; line-height: 1; animation: popin .35s; }
+.cal-cell.today { outline: 3px solid var(--blue); outline-offset: -3px; }
+.cal-cell.selected { outline: 3px solid var(--pink); outline-offset: -3px; }
+.cal-cell .cal-dot {
+  position: absolute;
+  font-size: 10px;
+  line-height: 1;
+  top: 2px;
+  right: 2px;
+}
+.cal-cell .cal-dot-badge { right: auto; left: 2px; }
+.cal-detail { font-size: 14px; line-height: 1.8; }
+.cal-detail b { font-size: 16px; color: var(--blue); }
+.cal-legend {
+  font-size: 12px;
+  color: #6a66a0;
+  line-height: 2;
+}
+.cal-legend .cal-stamp, .cal-legend .cal-dot { font-size: 15px; margin-right: 4px; }
 
 /* ===== めんせつ ===== */
 .iv-card { padding: 18px 16px; }
