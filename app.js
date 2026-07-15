@@ -407,6 +407,46 @@ function show(id) {
   window.scrollTo(0, 0);
 }
 
+/* ==================== ブラウザ履歴（戻るボタン対応） ==================== */
+/* history.state = { scr: 画面ID, depth: ホームからの深さ } を唯一の情報源とする。
+   サブ画面へは push、quiz→result 等の置き換えは replace。
+   「ホームへ」系の操作は navHome() が履歴を巻き戻し、popstate が表示を行う。 */
+function navPush(scr) {
+  const d = (history.state && history.state.depth || 0) + 1;
+  history.pushState({ scr, depth: d }, "");
+}
+function navReplace(scr) {
+  history.replaceState({ scr, depth: (history.state && history.state.depth) || 0 }, "");
+}
+function navHome() {
+  const d = (history.state && history.state.depth) || 0;
+  if (d > 0) history.go(-d);
+  else { renderHome(); show("scr-home"); }
+}
+
+window.addEventListener("popstate", e => {
+  const st = e.state || { scr: "scr-home", depth: 0 };
+  // 進行中のラウンド・面接・音声を安全に停止（冪等）
+  stopTimer();
+  clearTimeout(autoNextId);
+  clearTimeout(speakDelayId);
+  cancelSpeech();
+  R = null;
+  IV = null;
+  $("levelup").classList.add("hidden");
+  let target = st.scr;
+  // 進行状態が必要な画面は復元できないのでホームに差し替え
+  if (target === "scr-quiz" || target === "scr-result" || target === "scr-interview") {
+    target = "scr-home";
+    history.replaceState({ scr: "scr-home", depth: st.depth }, "");
+  }
+  if (target === "scr-home") renderHome();
+  else if (target === "scr-badges") renderBadges();
+  else if (target === "scr-words") renderWords();
+  else if (target === "scr-calendar") renderCalendar();
+  show(target);
+});
+
 /* ==================== 問題ビルダー ==================== */
 /* 正規化された問題オブジェクト:
    { srcId, modeKey, time, sub, main, blank, passage, script, listen,
@@ -620,6 +660,9 @@ function startRound(mode) {
     locked: false, timerStarted: false, curTime: qs[0].time,
     wrongs: [],
   };
+  // リトライ（結果画面から）は履歴を置き換え、home/リスニング選択からは積む
+  if (history.state && history.state.scr === "scr-result") navReplace("scr-quiz");
+  else navPush("scr-quiz");
   show("scr-quiz");
   renderQuestion();
 }
@@ -901,8 +944,7 @@ function quitRound() {
   clearTimeout(speakDelayId);
   cancelSpeech();
   R = null;
-  renderHome();
-  show("scr-home");
+  navHome();
 }
 
 /* --- きょうのぶん・れんぞく --- */
@@ -959,6 +1001,7 @@ function finishRound() {
   stampDay({ mode: R.mode, starN, perfect: c >= total, newBadgeIds: newBadges.map(b => b.id) });
   save();
 
+  navReplace("scr-result");   // 終わったクイズには「戻る」で戻れないようにする
   show("scr-result");
   const rk = $("rank");
   rk.textContent = rank;
@@ -1246,6 +1289,7 @@ function startInterview() {
   sClick();
   if (!D_INTERVIEW.length) { toast("じゅんびちゅう だよ"); return; }
   IV = { set: pick(D_INTERVIEW), step: 0 };
+  navPush("scr-interview");
   show("scr-interview");
   renderIv();
 }
@@ -1332,8 +1376,7 @@ function finishInterview() {
   stampDay({ mode: "interview", newBadgeIds: newBadges.map(b => b.id) });
   save();
   IV = null;
-  renderHome();
-  show("scr-home");
+  navHome();
   confetti(90);
   sFanfare();
   toast(`🎤 めんせつれんしゅう クリア！ 💎XP +${gained}`);
@@ -1350,8 +1393,7 @@ function finishInterview() {
 function quitInterview() {
   cancelSpeech();
   IV = null;
-  renderHome();
-  show("scr-home");
+  navHome();
 }
 
 /* ==================== 初期化 ==================== */
@@ -1377,14 +1419,14 @@ function decorate() {
 
 function goHome() {
   sClick();
-  renderHome();
-  show("scr-home");
+  navHome();
 }
 
 function init() {
   regAll();
   decorate();
   renderHome();
+  history.replaceState({ scr: "scr-home", depth: 0 }, "");
 
   document.querySelectorAll(".mode-btn[data-mode]").forEach(b => {
     b.addEventListener("click", () => startRound(b.dataset.mode));
@@ -1393,7 +1435,7 @@ function init() {
     b.addEventListener("click", () => startRound(b.dataset.mode));
   });
 
-  $("btn-lpick").onclick = () => { ensureAudio(); sClick(); show("scr-lpick"); };
+  $("btn-lpick").onclick = () => { ensureAudio(); sClick(); navPush("scr-lpick"); show("scr-lpick"); };
   $("btn-mock").onclick = () => startRound("mock");
   $("btn-lpick-back").onclick = goHome;
   $("btn-interview").onclick = startInterview;
@@ -1401,12 +1443,13 @@ function init() {
 
   $("btn-quit").onclick = () => { sClick(); quitRound(); };
   $("btn-home").onclick = goHome;
-  $("btn-badges").onclick = () => { ensureAudio(); sClick(); renderBadges(); show("scr-badges"); };
+  $("btn-badges").onclick = () => { ensureAudio(); sClick(); renderBadges(); navPush("scr-badges"); show("scr-badges"); };
   $("btn-badges-back").onclick = goHome;
   $("btn-words").onclick = () => {
     ensureAudio(); sClick();
     WB.page = 0;
     renderWords();
+    navPush("scr-words");
     show("scr-words");
   };
   $("btn-words-back").onclick = goHome;
@@ -1414,6 +1457,7 @@ function init() {
     ensureAudio(); sClick();
     calGoToday();
     renderCalendar();
+    navPush("scr-calendar");
     show("scr-calendar");
   };
   $("btn-calendar-back").onclick = goHome;
